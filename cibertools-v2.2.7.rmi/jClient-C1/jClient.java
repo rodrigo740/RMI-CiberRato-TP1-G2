@@ -25,7 +25,9 @@ import java.util.Vector;
 
 import org.xml.sax.*;
 import org.xml.sax.helpers.DefaultHandler;
-import javax.xml.parsers.SAXParserFactory; 
+import javax.xml.parsers.SAXParserFactory;
+import javax.lang.model.util.ElementScanner6;
+import javax.swing.plaf.synth.SynthSeparatorUI;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser; 
 
@@ -226,27 +228,126 @@ public class jClient {
         while(true) {
             cif.ReadSensors();
             decide();
+            //run();
         }
     }
 
     public void wander(boolean followBeacon) {
 
-        if(!flag){
+        //int g = cif.GetGroundSensor();
+        //int n = cif.GetNumberOfBeacons();
+        double lin = 0, rot = 0;
+        //double diff = Math.abs(irSensor1 - irSensor2);
 
-        int g = cif.GetGroundSensor();
-        int n = cif.GetNumberOfBeacons();
 
-        if (irSensor1 - irSensor2 > 0.6 ){
-            cif.DriveMotors(+0.15,-0.12);
+        if (irSensor0 <= 1.1){
+            //System.out.println(("Move forward"));
+            lin = 0.15;
+
+            if (irSensor1 > 3){    // wall too close to left side -> turn right
+                //rot = 1/irSensor1;
+                rot = 0.1*(1/irSensor1);
+                System.out.println("Rot 1: " + rot + "\n");
+            }else if (irSensor2 > 3){    // wall too close to right side -> turn left
+                //rot = -1/irSensor2;
+                rot = -0.1*(1/irSensor2);
+                System.out.println("Rot 2: " + rot + "\n");
+            }
+
+            cif.DriveMotors(lin + rot/2, lin - rot/2);
+
+        }else  if (irSensor1 > irSensor2){    // wall too close to left side -> turn right
+            System.out.println("Rotating Left\n");
+            rot = 0.15;
+            cif.DriveMotors(lin + rot, lin - rot);
+        }else if (irSensor1 < irSensor2){    // wall too close to right side -> turn left
+            System.out.println("Rotating Right\n");
+            rot = -0.15;
+            cif.DriveMotors(lin + rot, lin - rot);
         }
-        else if (irSensor2 - irSensor1 > 0.6){
-            cif.DriveMotors(-0.12,+0.15);
+        
+
+
+        /*
+        if (irSensor0 <= 1.1){
+            //System.out.println(("Move forward"));
+            lin = 0.15;
+        }
+        
+        if (irSensor1 > irSensor2){    // wall too close to left side -> turn right
+            System.out.println("Rot 1: " + irSensor1 + "\n");
+            rot = irSensor1;
+        }else if (irSensor1 < irSensor2){    // wall too close to right side -> turn left
+            System.out.println("Rot 2: " + irSensor2 + "\n");
+            rot = -1*irSensor2;
+        }
+
+        cif.DriveMotors(lin + rot, lin - rot);
+        */
+        /*
+        double limit = 7.5;
+
+        if(irSensor1 >= limit){
+            System.out.println("rotate right");
+            cif.DriveMotors(0.15, -0.15);
+        }
+
+        if(irSensor2 >= limit){
+            System.out.println("rotate left");
+            cif.DriveMotors(-0.15, 0.15);
+        }*/
+
+        /*
+        if (irSensor1 > irSensor2){
+            cif.DriveMotors(+0.15,0);
+        }
+        else if (irSensor2 > irSensor1){
+            cif.DriveMotors(0,+0.15);
+        }
+        else if (irSensor0 < 1){
+            cif.DriveMotors(+0.15,+0.15);
+        }*/
+
+        /*
+        if (irSensor0 <= 1.1){
+            cif.DriveMotors(+0.15,+0.15);
+        }
+        else if (irSensor1 > irSensor2){
+            cif.DriveMotors(+0.15,-0.15);
+        }
+        else if (irSensor2 > irSensor1){
+            cif.DriveMotors(-0.15,+0.15);
+        }*/
+    
+        
+         
+
+
+        /*
+        if (irSensor1 > irSensor2){
+            cif.DriveMotors(+0.12,-0.10);
+        }
+        else if (irSensor2 < irSensor1){
+            cif.DriveMotors(-0.10,+0.12);
+        }*/
+
+        
+        
+        
+        
+
+
+
+        /*
+        if (irSensor1 - irSensor2 > 0.6 ){
+            cif.DriveMotors(+0.12,-0.10);
+        }
+        else if (irSensor2 - irSensor1 > 0.6 ){
+            cif.DriveMotors(-0.10,+0.12);
         }    
         else if (irSensor0 < 2){
             cif.DriveMotors(+0.15,+0.15);
         }
-
-       
 
         if (g!=-1 && g!=atual && g==next){
             System.out.println("Next target:" + (g+1)%n);
@@ -254,11 +355,16 @@ public class jClient {
             next = (g+1)%n;
             flag = true;
         }
+        */
 
-        }else{
-            cif.DriveMotors(+0.15,-15.0);
-            flag=false;
-        }
+
+
+
+
+        
+        //cif.DriveMotors(+0.15,-15.0);
+        //flag=false;
+        
             /*
         if(g!=-1 && g!=next ){
             System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
@@ -284,80 +390,141 @@ public class jClient {
         else cif.DriveMotors(0.15,0.15);*/
     }
 
+    public void run() {
+        int g = cif.GetGroundSensor();
+        int n = cif.GetNumberOfBeacons();
+
+        if(cif.IsObstacleReady(0))
+                irSensor0 = cif.GetObstacleSensor(0);
+        if(cif.IsObstacleReady(1))
+                irSensor1 = cif.GetObstacleSensor(1);
+        if(cif.IsObstacleReady(2))
+                irSensor2 = cif.GetObstacleSensor(2);
+
+        if(cif.IsCompassReady())
+                compass = cif.GetCompassSensor();
+        if(cif.IsGroundReady())
+                ground = cif.GetGroundSensor();
+
+        if(cif.IsBeaconReady(beaconToFollow))
+                beacon = cif.GetBeaconSensor(beaconToFollow);
+
+
+        if (irSensor0 < 2){
+            cif.DriveMotors(+0.15,+0.15);
+        }
+        else{
+            System.out.println("Stop!");
+            cif.DriveMotors(0,0);
+
+        }
+
+
+
+
+
+        /*
+        System.out.println("Sensor0: " + irSensor0);
+        System.out.println("Sensor1: " + irSensor1);
+        System.out.println("Sensor2: " + irSensor2);
+
+        
+        
+
+
+        if (irSensor1 - irSensor2 > 0.6 ){
+            cif.DriveMotors(+0.12,-0.10);
+        }
+        else if (irSensor2 - irSensor1 > 0.6 ){
+            cif.DriveMotors(-0.10,+0.12);
+        }    
+        else if (irSensor0 < 2){
+            cif.DriveMotors(+0.15,+0.15);
+        }
+
+        if (g!=-1 && g!=atual && g==next){
+            System.out.println("Next target:" + (g+1)%n);
+            atual = g;
+            next = (g+1)%n;
+            flag = true;
+        }
+        */
+    }
+
     /**
      * basic reactive decision algorithm, decides action based on current sensor values
      */
     public void decide() {
 
 
-        System.out.println("Atual: " + atual);
-        System.out.println("Next: " + next);
+        //System.out.println("Atual: " + atual);
+        //System.out.println("Next: " + next);
 
-            if(cif.IsObstacleReady(0))
-                    irSensor0 = cif.GetObstacleSensor(0);
-            if(cif.IsObstacleReady(1))
-                    irSensor1 = cif.GetObstacleSensor(1);
-            if(cif.IsObstacleReady(2))
-                    irSensor2 = cif.GetObstacleSensor(2);
+        if(cif.IsObstacleReady(0))
+                irSensor0 = cif.GetObstacleSensor(0);
+        if(cif.IsObstacleReady(1))
+                irSensor1 = cif.GetObstacleSensor(1);
+        if(cif.IsObstacleReady(2))
+                irSensor2 = cif.GetObstacleSensor(2);
 
-            if(cif.IsCompassReady())
-                    compass = cif.GetCompassSensor();
-            if(cif.IsGroundReady())
-                    ground = cif.GetGroundSensor();
+        if(cif.IsCompassReady())
+                compass = cif.GetCompassSensor();
+        if(cif.IsGroundReady())
+                ground = cif.GetGroundSensor();
 
-            if(cif.IsBeaconReady(beaconToFollow))
-                    beacon = cif.GetBeaconSensor(beaconToFollow);
+        if(cif.IsBeaconReady(beaconToFollow))
+                beacon = cif.GetBeaconSensor(beaconToFollow);
 
-            //System.out.println("Measures: ir0=" + irSensor0 + " ir1=" + irSensor1 + " ir2=" + irSensor2 + "\n");
+        //System.out.println("Measures: ir0=" + irSensor0 + " ir1=" + irSensor1 + " ir2=" + irSensor2 + "\n");
 
-            //System.out.println(robName + " state " + state);
+        //System.out.println(robName + " state " + state);
 
-            switch(state) {
-                 case RUN:    /* Go */
-                     if( cif.GetVisitingLed() ) state = State.WAIT;
-                     if( ground == 0 ) {         /* Visit Target */
-                         cif.SetVisitingLed(true);
-                         System.out.println(robName + " visited target at " + cif.GetTime() + "\n");
-                     }
+        switch(state) {
+                case RUN:    /* Go */
+                    if( cif.GetVisitingLed() ) state = State.WAIT;
+                    if( ground == 0 ) {         /* Visit Target */
+                        cif.SetVisitingLed(true);
+                        System.out.println(robName + " visited target at " + cif.GetTime() + "\n");
+                    }
 
-                     else {
-                         wander(false);
-                     }
-                     break;
-                 case WAIT: /* set returning led and check that it is on */
-                     cif.SetReturningLed(true);
-                     if(cif.GetVisitingLed()) cif.SetVisitingLed(false);
-                     if(cif.GetReturningLed()) state = State.RETURN;
+                    else {
+                        wander(false);
+                    }
+                    break;
+                case WAIT: /* set returning led and check that it is on */
+                    cif.SetReturningLed(true);
+                    if(cif.GetVisitingLed()) cif.SetVisitingLed(false);
+                    if(cif.GetReturningLed()) state = State.RETURN;
 
-                     cif.DriveMotors(0.0,0.0);
-                     break;
-                 case RETURN: /* Return to home area */
-                     cif.SetVisitingLed(false);
-                     cif.SetReturningLed(false);
-                     wander(false);
-                     break;
+                    cif.DriveMotors(0.0,0.0);
+                    break;
+                case RETURN: /* Return to home area */
+                    cif.SetVisitingLed(false);
+                    cif.SetReturningLed(false);
+                    wander(false);
+                    break;
 
-            }
-
-
-            //for(int i=1; i<6; i++)
-            //  if(cif.NewMessageFrom(i))
-            //      System.out.println("Message: From " + i + " to " + robName + " : \"" + cif.GetMessageFrom(i)+ "\"");
+        }
 
 
-            //cif.Say(robName);
+        //for(int i=1; i<6; i++)
+        //  if(cif.NewMessageFrom(i))
+        //      System.out.println("Message: From " + i + " to " + robName + " : \"" + cif.GetMessageFrom(i)+ "\"");
 
-            //if(cif.GetTime() % 2 == 0) {
-            //     cif.RequestIRSensor(0);
-            //     if(cif.GetTime() % 8 == 0 || state == State.RETURN )
-            //         cif.RequestGroundSensor();
-            //     else
-            //         cif.RequestBeaconSensor(beaconToFollow);
-            //}
-            //else {
-            //   cif.RequestIRSensor(1);
-            //   cif.RequestIRSensor(2);
-            //}
+
+        //cif.Say(robName);
+
+        //if(cif.GetTime() % 2 == 0) {
+        //     cif.RequestIRSensor(0);
+        //     if(cif.GetTime() % 8 == 0 || state == State.RETURN )
+        //         cif.RequestGroundSensor();
+        //     else
+        //         cif.RequestBeaconSensor(beaconToFollow);
+        //}
+        //else {
+        //   cif.RequestIRSensor(1);
+        //   cif.RequestIRSensor(2);
+        //}
     }
 
     static void print_usage() {
