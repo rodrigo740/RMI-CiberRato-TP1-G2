@@ -156,7 +156,7 @@ class MyRob(CRobLinkAngs):
                 problema = SearchProblem(p,s,g)
                 tree = SearchTree(problema)
 
-                print("Start")
+                print("\nStart")
                 print(pos)
                 print("Finish")
                 print(g)
@@ -262,7 +262,7 @@ class MyRob(CRobLinkAngs):
         compass = self.measures.compass
 
 
-        if self.measures.irSensor[center_id] <= 1.1:
+        if self.measures.irSensor[center_id] <= 1.4:
             lin = 0.15
 
             if self.measures.irSensor[left_id] > 3:
@@ -281,12 +281,13 @@ class MyRob(CRobLinkAngs):
                     pos = (x-1,y)
                 elif compass <= -120 or compass >= 120:
                     pos = (x,y-1)
-                elif compass <= -30 and compass >= -120:
+                elif compass <= -60 and compass >= -120:
                     pos = (x+1,y)
 
-                self.paredes.add(pos)
+                if pos not in self.livres:
+                    self.paredes.add(pos)
             else:
-                print("\nFree cell in front of sensor left\n")
+                #print("\nFree cell in front of sensor left\n")
                 if compass <= 30 and compass >= -30:
                     pos = (x,y+1)
                 elif compass <= 120 and compass >= 60:
@@ -298,8 +299,8 @@ class MyRob(CRobLinkAngs):
 
                 if pos == (848, 404):
                     print(1)
-
-                self.livres.add(pos)
+                if pos not in self.paredes:
+                    self.livres.add(pos)
                 
             if self.measures.irSensor[right_id] > 1.1:
                 
@@ -312,9 +313,10 @@ class MyRob(CRobLinkAngs):
                 elif compass <= -60 and compass >= -120:
                     pos = (x-1,y)
 
-                self.paredes.add(pos)
+                if pos not in self.livres:
+                    self.paredes.add(pos)
             else:
-                print("\nFree cell in front of sensor right\n")
+                #print("\nFree cell in front of sensor right\n")
                 if compass <= 30 and compass >= -30:
                     pos = (x,y-1)
                 elif compass <= 120 and compass >= 60:
@@ -324,10 +326,9 @@ class MyRob(CRobLinkAngs):
                 elif compass <= -60 and compass >= -120:
                     pos = (x-1,y)
 
-                if pos == (848, 404):
-                    print(2)
-
-                self.livres.add(pos)
+                
+                if pos not in self.paredes:
+                    self.livres.add(pos)
             
             if self.measures.irSensor[back_id] > 1.1:
                 
@@ -339,10 +340,11 @@ class MyRob(CRobLinkAngs):
                     pos = (x+1,y)
                 elif compass <= -60 and compass >= -120:
                     pos = (x,y+1)
-
-                self.paredes.add(pos)
+                
+                if pos not in self.livres:
+                    self.paredes.add(pos)
             else:
-                print("\nFree cell in front of sensor back\n")
+                #print("\nFree cell in front of sensor back\n")
                 if compass <= 30 and compass >= -30:
                     pos = (x-1,y)
                 elif compass <= 120 and compass >= 60:
@@ -352,10 +354,8 @@ class MyRob(CRobLinkAngs):
                 elif compass <= -60 and compass >= -120:
                     pos = (x,y+1)
 
-                if pos == (848, 404):
-                    print(3)
-
-                self.livres.add(pos)
+                if pos not in self.paredes:
+                    self.livres.add(pos)
 
 
             """
@@ -444,12 +444,13 @@ class MyRob(CRobLinkAngs):
                     pos = (x-1,y)
                 elif compass <= -120 or compass >= 120:
                     pos = (x,y-1)
-                elif compass <= -30 and compass >= -120:
+                elif compass <= -60 and compass >= -120:
                     pos = (x+1,y)
 
-                self.paredes.add(pos)
+                if pos not in self.livres:
+                    self.paredes.add(pos)
             else:
-                print("\nFree cell in front of sensor left\n")
+                #print("\nFree cell in front of sensor left\n")
                 if compass <= 30 and compass >= -30:
                     pos = (x,y+1)
                 elif compass <= 120 and compass >= 60:
@@ -461,8 +462,8 @@ class MyRob(CRobLinkAngs):
 
                 if pos == (848, 404):
                     print(1)
-
-                self.livres.add(pos)
+                if pos not in self.paredes:
+                    self.livres.add(pos)
                 
             if self.measures.irSensor[right_id] > 1.1:
                 
@@ -475,17 +476,12 @@ class MyRob(CRobLinkAngs):
                 elif compass <= -60 and compass >= -120:
                     pos = (x-1,y)
 
-                self.paredes.add(pos)
+                if pos not in self.livres:
+                    self.paredes.add(pos)
             else:
-                print("\nFree cell in front of sensor right\n")
+                #print("\nFree cell in front of sensor right\n")
                 if compass <= 30 and compass >= -30:
                     pos = (x,y-1)
-
-                    if pos not in self.paredes:
-                        self.livres.add(pos)
-                    else:
-                        self.livres.add((pos[0]+1,pos[1]))
-
                 elif compass <= 120 and compass >= 60:
                     pos = (x+1,y)
                 elif compass <= -120 or compass >= 120:
@@ -493,10 +489,9 @@ class MyRob(CRobLinkAngs):
                 elif compass <= -60 and compass >= -120:
                     pos = (x-1,y)
 
-                if pos == (848, 404):
-                    print(2)
                 
-
+                if pos not in self.paredes:
+                    self.livres.add(pos)
             
             if self.measures.irSensor[back_id] > 1.1:
                 
@@ -508,10 +503,11 @@ class MyRob(CRobLinkAngs):
                     pos = (x+1,y)
                 elif compass <= -60 and compass >= -120:
                     pos = (x,y+1)
-
-                self.paredes.add(pos)
+                
+                if pos not in self.livres:
+                    self.paredes.add(pos)
             else:
-                print("\nFree cell in front of sensor back\n")
+                #print("\nFree cell in front of sensor back\n")
                 if compass <= 30 and compass >= -30:
                     pos = (x-1,y)
                 elif compass <= 120 and compass >= 60:
@@ -521,12 +517,10 @@ class MyRob(CRobLinkAngs):
                 elif compass <= -60 and compass >= -120:
                     pos = (x,y+1)
 
-                if pos == (848, 404):
-                    print(3)
+                if pos not in self.paredes:
+                    self.livres.add(pos)
 
-                self.livres.add(pos)
-
-            #self.driveMotors(0, 0)
+            self.driveMotors(0, 0)
             return False
 
 
