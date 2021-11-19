@@ -18,7 +18,6 @@ class MyRob(CRobLinkAngs):
     paredes = set()
     initialPos = (0,0)
     mapArray = [[' ' for x in range(56)] for y in range(28)]
-    print(mapArray)
     #x linha, y coluna
 
 
@@ -98,7 +97,8 @@ class MyRob(CRobLinkAngs):
                     compass = self.measures.compass
                     #print(compass)
 
-                    if compass > 170 or compass < -170:
+                    #if compass > 170 or compass < -170:
+                    if compass > 179 or compass < -179:
                         #print("rotate done!\n")
                         state = 'walk'
                         path.pop(0)
@@ -106,41 +106,44 @@ class MyRob(CRobLinkAngs):
 
 
                     else:
-                        self.driveMotors(-0.05,0.05)
+                        self.rotation(180)
                         #print("rotating!\n")
 
                 elif state=='rotRight':
                     compass = self.measures.compass
 
-                    if compass < 10 and compass > -10:
+                    #if compass < 10 and compass > -10:
+                    if compass < 1 and compass > -1:
                         state = 'walk'
                         path.pop(0)
                         self.walk()
 
                     else:
-                        self.driveMotors(0.05,-0.05)
+                        self.rotation(0)
 
                 elif state=='rotUp':
                     compass = self.measures.compass
 
-                    if compass < 100 and compass > 80:
+                    #if compass < 100 and compass > 80:
+                    if compass < 91 and compass > 89:
                         state = 'walk'
                         path.pop(0)
                         self.walk()
 
                     else:
-                        self.driveMotors(0.05,-0.05)
+                        self.rotation(90)
 
                 elif state=='rotDown':
                     compass = self.measures.compass
 
-                    if compass < -80 and compass > -100:
+                    #if compass < -80 and compass > -100:
+                    if compass < -89 and compass > -91:    
                         state = 'walk'
                         path.pop(0)
                         self.walk()
 
                     else:
-                        self.driveMotors(0.05,-0.05)
+                        self.rotation(-90)
 
                 elif state=='walk':
                     currPos = (math.trunc(self.measures.x),math.trunc(self.measures.y))
@@ -295,7 +298,6 @@ class MyRob(CRobLinkAngs):
                 if mapping_x % 2 == 0:
                     self.mapArray[13 - mapping_y][27 + mapping_x] = '-'
 
-        print('asdassdasadsadsadsdasdasda')
         with open('mapping.out', 'w') as f:
             for i in range(28):
                 for j in range(56):
@@ -312,7 +314,7 @@ class MyRob(CRobLinkAngs):
                         rot = 0.1*(1/self.measures.irSensor[left_id])
                     elif self.measures.irSensor[right_id] > 3:
                         rot = -0.1*(1/self.measures.irSensor[right_id])
-                                
+                    
                     self.driveMotors(lin + rot/2, lin - rot/2)
 
                     if self.measures.irSensor[left_id] > 1.1:
@@ -400,6 +402,18 @@ class MyRob(CRobLinkAngs):
 
                     return True
                 else:
+
+                    if compass <= 30 and compass >= -30:
+                        pos = (x+1,y)
+                    elif compass <= 120 and compass >= 60:
+                        pos = (x,y+1)
+                    elif compass <= -120 or compass >= 120:
+                        pos = (x-1,y)
+                    elif compass <= -60 and compass >= -120:
+                        pos = (x,y-1)
+
+                    if pos not in self.livres:
+                        self.paredes.add(pos)
 
                     if self.measures.irSensor[left_id] > 1.1:
 
@@ -500,10 +514,31 @@ class MyRob(CRobLinkAngs):
             self.walk()
             return True
 
+    def rotation(self, angleGoal):
+        self.readSensors()
+        compass = self.measures.compass
 
-
-
-
+        if angleGoal == 0:
+            if compass > 0 and compass <= 180:
+                self.driveMotors(0.05,-0.05)
+            elif compass < 0 and compass > -180:
+                self.driveMotors(-0.05,0.05)
+        elif angleGoal == 90:
+            if (compass > 90 and compass <= 180) or (compass <= -90 and compass >-180):
+                self.driveMotors(0.05,-0.05)
+            elif compass < 90 and compass > -90:
+                self.driveMotors(-0.05,0.05)
+        elif angleGoal == 180:
+            if compass >= 0 and compass < 180:
+                self.driveMotors(-0.05,0.05)
+            elif compass < 0 and compass > -180:
+                self.driveMotors(0.05,-0.05)
+        elif angleGoal == -90:
+            if (compass >= 90 and compass <= 180) or (compass < -90 and compass >-180):
+                self.driveMotors(-0.05,0.05)
+            elif compass < 90 and compass > -90:
+                self.driveMotors(0.05,-0.05)
+        
 
         """
         elif self.measures.irSensor[left_id] > self.measures.irSensor[right_id]:

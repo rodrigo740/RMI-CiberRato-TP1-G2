@@ -18,8 +18,6 @@ class MyRob(CRobLinkAngs):
     paredes = set()
     initialPos = (0,0)
     mapArray = [[' ' for x in range(56)] for y in range(28)]
-    print(mapArray)
-    #x linha, y coluna
 
 
     def __init__(self, rob_name, rob_id, angles, host):
@@ -87,6 +85,7 @@ class MyRob(CRobLinkAngs):
 
                 elif state=='goTo':
                     currPos = (math.trunc(self.measures.x),math.trunc(self.measures.y))
+                    currPos = (currPos[0]-self.initialPos[0],currPos[1]-self.initialPos[1])
                     
                     if len(path) > 1:
                         state = self.goTo(path[0],path[1])
@@ -98,7 +97,8 @@ class MyRob(CRobLinkAngs):
                     compass = self.measures.compass
                     #print(compass)
 
-                    if compass > 170 or compass < -170:
+                    #if compass > 170 or compass < -170:
+                    if compass > 178 or compass < -178:
                         #print("rotate done!\n")
                         state = 'walk'
                         path.pop(0)
@@ -106,44 +106,49 @@ class MyRob(CRobLinkAngs):
 
 
                     else:
-                        self.driveMotors(-0.05,0.05)
+                        self.rotation(180)
                         #print("rotating!\n")
 
                 elif state=='rotRight':
                     compass = self.measures.compass
 
-                    if compass < 10 and compass > -10:
+                    #if compass < 10 and compass > -10:
+                    if compass < 2 and compass > -2:
                         state = 'walk'
                         path.pop(0)
                         self.walk()
 
                     else:
-                        self.driveMotors(0.05,-0.05)
+                        self.rotation(0)
 
                 elif state=='rotUp':
                     compass = self.measures.compass
 
-                    if compass < 100 and compass > 80:
+                    #if compass < 100 and compass > 80:
+                    if compass < 92 and compass > 88:
                         state = 'walk'
                         path.pop(0)
                         self.walk()
 
                     else:
-                        self.driveMotors(0.05,-0.05)
+                        self.rotation(90)
 
                 elif state=='rotDown':
                     compass = self.measures.compass
 
-                    if compass < -80 and compass > -100:
+                    #if compass < -80 and compass > -100:
+                    if compass < -88 and compass > -92:    
                         state = 'walk'
                         path.pop(0)
                         self.walk()
 
                     else:
-                        self.driveMotors(0.05,-0.05)
+                        self.rotation(-90)
 
                 elif state=='walk':
                     currPos = (math.trunc(self.measures.x),math.trunc(self.measures.y))
+                    currPos = (currPos[0]-self.initialPos[0],currPos[1]-self.initialPos[1])
+
                     if currPos != path[0]:
                         self.walk()
                     else:
@@ -158,6 +163,8 @@ class MyRob(CRobLinkAngs):
                 print(self.paredes)
                 
                 pos = (math.trunc(self.measures.x),math.trunc(self.measures.y))
+                pos = (pos[0]-self.initialPos[0],pos[1]-self.initialPos[1])
+
                 g = self.searchFreeCell(pos)
                 p = MazeDomain(pos, self.visitadas, self.paredes, g)
                 s = State(pos)
@@ -172,6 +179,7 @@ class MyRob(CRobLinkAngs):
                 path = tree.search()
                 print("Solution: ")
                 print(path)
+                
                 for i in path:
                     print(str(i))
                 
@@ -197,13 +205,22 @@ class MyRob(CRobLinkAngs):
         print("Best: " + str(best))
         self.visitadas.add(best[1])
         self.livres.remove(best[1])
+
+        if best[1] in self.paredes:
+            self.paredes.remove(best[1])
+
+
         return best[1]
 
 
     # Função que traduz uma sequência de estados em inputs para o servidor
     def goTo(self,pos1,pos2):
+
+        pos1Abs = (abs(pos1[0]),abs(pos1[1]))
+        pos2Abs = (abs(pos2[0]),abs(pos2[1]))
+
         
-        if pos1[1] - pos2[1] == 0: #mesma linha
+        if pos1Abs[1] - pos2Abs[1] == 0: #mesma linha
             if pos1[0] < pos2[0]: # mov para a direita
                 
                 print("direita")
@@ -213,7 +230,7 @@ class MyRob(CRobLinkAngs):
                 print("esquerda")
                 return 'rotLeft'
 
-        elif pos1[0] - pos2[0] == 0: #mesma coluna
+        elif pos1Abs[0] - pos2Abs[0] == 0: #mesma coluna
             if pos1[1] > pos2[1]: # mov para baixo
                 
                 print("baixo")
@@ -232,23 +249,132 @@ class MyRob(CRobLinkAngs):
         while currPos != pos2:
             self.driveMotors(0.15,0.15)
         """
+
+    def checkNearby(self,x,y,compass):
+
+        center_id = 0
+        left_id = 1
+        right_id = 2
+        back_id = 3
+        
+        if self.measures.irSensor[center_id] > 1.1:
+    
+            if compass <= 30 and compass >= -30:
+                pos = (x+1,y)
+            elif compass <= 120 and compass >= 60:
+                pos = (x,y+1)
+            elif compass <= -120 or compass >= 120:
+                pos = (x-1,y)
+            elif compass <= -60 and compass >= -120:
+                pos = (x,y-1)
+
+            self.paredes.add(pos)
+
+        if self.measures.irSensor[left_id] > 1.1:
+
+            if compass <= 30 and compass >= -30:
+                pos = (x,y+1)
+            elif compass <= 120 and compass >= 60:
+                pos = (x-1,y)
+            elif compass <= -120 or compass >= 120:
+                pos = (x,y-1)
+            elif compass <= -60 and compass >= -120:
+                pos = (x+1,y)
+
+            self.paredes.add(pos)
+        else:
+            #print("\nFree cell in front of sensor left\n")
+            if compass <= 30 and compass >= -30:
+                pos = (x,y+1)
+            elif compass <= 120 and compass >= 60:
+                pos = (x-1,y)
+            elif compass <= -120 or compass >= 120:
+                pos = (x,y-1)
+            elif compass <= -60 and compass >= -120:
+                pos = (x+1,y)
+
+            self.livres.add(pos)
+            
+        if self.measures.irSensor[right_id] > 1.1:
+            
+            if compass <= 30 and compass >= -30:
+                pos = (x,y-1)
+            elif compass <= 120 and compass >= 60:
+                pos = (x+1,y)
+            elif compass <= -120 or compass >= 120:
+                pos = (x,y+1)
+            elif compass <= -60 and compass >= -120:
+                pos = (x-1,y)
+
+            self.paredes.add(pos)
+
+        else:
+            #print("\nFree cell in front of sensor right\n")
+            if compass <= 30 and compass >= -30:
+                pos = (x,y-1)
+            elif compass <= 120 and compass >= 60:
+                pos = (x+1,y)
+            elif compass <= -120 or compass >= 120:
+                pos = (x,y+1)
+            elif compass <= -60 and compass >= -120:
+                pos = (x-1,y)
+            
+            self.livres.add(pos)
+        
+        if self.measures.irSensor[back_id] > 1.1:
+            
+            if compass <= 30 and compass >= -30:
+                pos = (x-1,y)
+            elif compass <= 120 and compass >= 60:
+                pos = (x,y-1)
+            elif compass <= -120 or compass >= 120:
+                pos = (x+1,y)
+            elif compass <= -60 and compass >= -120:
+                pos = (x,y+1)
+            
+            self.paredes.add(pos)
+
+        else:
+            #print("\nFree cell in front of sensor back\n")
+            if compass <= 30 and compass >= -30:
+                pos = (x-1,y)
+            elif compass <= 120 and compass >= 60:
+                pos = (x,y-1)
+            elif compass <= -120 or compass >= 120:
+                pos = (x+1,y)
+            elif compass <= -60 and compass >= -120:
+                pos = (x,y+1)
+
+            self.livres.add(pos)
     
     def walk(self):
 
+        center_id = 0
         left_id = 1
         right_id = 2
         back_id = 3
 
         lin = 0.15
         rot = 0.0
-        
+        """
+        diff = self.measures.irSensor[left_id] - self.measures.irSensor[right_id]
+
+        if diff <= 0:
+            rot = 0.01*(1/self.measures.irSensor[right_id])        
+        else:
+            rot = -0.01*(1/self.measures.irSensor[left_id])
+        print(rot/2)
+        self.driveMotors(lin + rot/2, lin - rot/2)
+        """
+
         if self.measures.irSensor[left_id] > 3:
             rot = 0.01*(1/self.measures.irSensor[left_id])
         elif self.measures.irSensor[right_id] > 3:
             rot = -0.01*(1/self.measures.irSensor[right_id])
-        
-        self.driveMotors(lin + rot/2, lin - rot/2)
 
+        #print(rot)
+        self.driveMotors(lin + rot/2, lin - rot/2)
+    
 
             
 
@@ -268,223 +394,54 @@ class MyRob(CRobLinkAngs):
         posM = (pos[0]-self.initialPos[0],pos[1]-self.initialPos[1])
         
         threshold = 0.7
-        posM_threshold = (abs(pos[0]) + threshold, abs(pos[1] + threshold))
+        posM_threshold1 = (abs(pos[0]) + threshold, abs(pos[1] + threshold))
+        posM_threshold2 = (abs(pos[0]) - threshold, abs(pos[1] - threshold))
         #print(posM_threshold)
         #print(self.measures.x)
         #print(self.measures.y)
-        self.visitadas.add(pos)
+        self.visitadas.add(posM)
         #print(self.livres)
         #print(self.paredes)
 
         compass = self.measures.compass
 
         for i in self.visitadas:
-            mapping_x = i[0] - self.initialPos[0]
-            mapping_y = i[1] - self.initialPos[1]
-            self.mapArray[13 - mapping_y][27 + mapping_x] = 'X'
+            #mapping_x = i[0] - self.initialPos[0]
+            #mapping_y = i[1] - self.initialPos[1]
+            self.mapArray[13 - i[1]][27 + i[0]] = 'X'
         
         for i in self.paredes:
-            mapping_x = i[0] - self.initialPos[0]
-            mapping_y = i[1] - self.initialPos[1]
+            #mapping_x = i[0] - self.initialPos[0]
+            #mapping_y = i[1] - self.initialPos[1]
 
-            if mapping_y % 2 == 0:
-                if mapping_x % 2 != 0:
-                    print(mapping_x, mapping_y)
-                    self.mapArray[13 - mapping_y][27 + mapping_x] = '|'
+            if i[1] % 2 == 0:
+                if i[0] % 2 != 0:
+                    #print(mapping_x, mapping_y)
+                    self.mapArray[13 - i[1]][27 + i[0]] = '|'
             else:
-                if mapping_x % 2 == 0:
-                    self.mapArray[13 - mapping_y][27 + mapping_x] = '-'
+                if i[0] % 2 == 0:
+                    self.mapArray[13 - i[1]][27 + i[0]] = '-'
 
-        print('asdassdasadsadsadsdasdasda')
         with open('mapping.out', 'w') as f:
             for i in range(28):
                 for j in range(56):
                     f.write(self.mapArray[i][j])
                 f.write('\n')
 
+
         if posM[0] % 2 == 0 and posM[1] % 2 == 0:
-            if self.measures.x <= posM_threshold[0] and self.measures.y <= posM_threshold[1]:
+            if pos[0] <= posM_threshold1[0] and pos[1] <= posM_threshold1[1] and pos[0] >= posM_threshold2[0] and pos[1] >= posM_threshold2[1]:
         
-                if self.measures.irSensor[center_id] <= 1.1:
-                    lin = 0.15
-
-                    if self.measures.irSensor[left_id] > 3:
-                        rot = 0.1*(1/self.measures.irSensor[left_id])
-                    elif self.measures.irSensor[right_id] > 3:
-                        rot = -0.1*(1/self.measures.irSensor[right_id])
-                                
-                    self.driveMotors(lin + rot/2, lin - rot/2)
-
-                    if self.measures.irSensor[left_id] > 1.1:
-
-                        if compass <= 30 and compass >= -30:
-                            pos = (x,y+1)
-                        elif compass <= 120 and compass >= 60:
-                            pos = (x-1,y)
-                        elif compass <= -120 or compass >= 120:
-                            pos = (x,y-1)
-                        elif compass <= -60 and compass >= -120:
-                            pos = (x+1,y)
-
-                        if pos not in self.livres:
-                            self.paredes.add(pos)
-                    else:
-                        #print("\nFree cell in front of sensor left\n")
-                        if compass <= 30 and compass >= -30:
-                            pos = (x,y+1)
-                        elif compass <= 120 and compass >= 60:
-                            pos = (x-1,y)
-                        elif compass <= -120 or compass >= 120:
-                            pos = (x,y-1)
-                        elif compass <= -60 and compass >= -120:
-                            pos = (x+1,y)
-
-                        if pos not in self.paredes:
-                            self.livres.add(pos)
-                        
-                    if self.measures.irSensor[right_id] > 1.1:
-                        
-                        if compass <= 30 and compass >= -30:
-                            pos = (x,y-1)
-                        elif compass <= 120 and compass >= 60:
-                            pos = (x+1,y)
-                        elif compass <= -120 or compass >= 120:
-                            pos = (x,y+1)
-                        elif compass <= -60 and compass >= -120:
-                            pos = (x-1,y)
-
-                        if pos not in self.livres:
-                            self.paredes.add(pos)
-                    else:
-                        #print("\nFree cell in front of sensor right\n")
-                        if compass <= 30 and compass >= -30:
-                            pos = (x,y-1)
-                        elif compass <= 120 and compass >= 60:
-                            pos = (x+1,y)
-                        elif compass <= -120 or compass >= 120:
-                            pos = (x,y+1)
-                        elif compass <= -60 and compass >= -120:
-                            pos = (x-1,y)
-
-                        
-                        if pos not in self.paredes:
-                            self.livres.add(pos)
+                if self.measures.irSensor[center_id] <= 1.5:
                     
-                    if self.measures.irSensor[back_id] > 1.1:
-                        
-                        if compass <= 30 and compass >= -30:
-                            pos = (x-1,y)
-                        elif compass <= 120 and compass >= 60:
-                            pos = (x,y-1)
-                        elif compass <= -120 or compass >= 120:
-                            pos = (x+1,y)
-                        elif compass <= -60 and compass >= -120:
-                            pos = (x,y+1)
-                        
-                        if pos not in self.livres:
-                            self.paredes.add(pos)
-                    else:
-                        #print("\nFree cell in front of sensor back\n")
-                        if compass <= 30 and compass >= -30:
-                            pos = (x-1,y)
-                        elif compass <= 120 and compass >= 60:
-                            pos = (x,y-1)
-                        elif compass <= -120 or compass >= 120:
-                            pos = (x+1,y)
-                        elif compass <= -60 and compass >= -120:
-                            pos = (x,y+1)
-
-                        if pos not in self.paredes:
-                            self.livres.add(pos)
-
+                    self.walk()
+                    self.checkNearby(posM[0],posM[1],compass)
 
                     return True
                 else:
-
-                    if self.measures.irSensor[left_id] > 1.1:
-
-                        if compass <= 30 and compass >= -30:
-                            pos = (x,y+1)
-                        elif compass <= 120 and compass >= 60:
-                            pos = (x-1,y)
-                        elif compass <= -120 or compass >= 120:
-                            pos = (x,y-1)
-                        elif compass <= -60 and compass >= -120:
-                            pos = (x+1,y)
-
-                        if pos not in self.livres:
-                            self.paredes.add(pos)
-                    else:
-                        #print("\nFree cell in front of sensor left\n")
-                        if compass <= 30 and compass >= -30:
-                            pos = (x,y+1)
-                        elif compass <= 120 and compass >= 60:
-                            pos = (x-1,y)
-                        elif compass <= -120 or compass >= 120:
-                            pos = (x,y-1)
-                        elif compass <= -60 and compass >= -120:
-                            pos = (x+1,y)
-
-                        if pos == (848, 404):
-                            print(1)
-                        if pos not in self.paredes:
-                            self.livres.add(pos)
-                        
-                    if self.measures.irSensor[right_id] > 1.1:
-                        
-                        if compass <= 30 and compass >= -30:
-                            pos = (x,y-1)
-                        elif compass <= 120 and compass >= 60:
-                            pos = (x+1,y)
-                        elif compass <= -120 or compass >= 120:
-                            pos = (x,y+1)
-                        elif compass <= -60 and compass >= -120:
-                            pos = (x-1,y)
-
-                        if pos not in self.livres:
-                            self.paredes.add(pos)
-                    else:
-                        #print("\nFree cell in front of sensor right\n")
-                        if compass <= 30 and compass >= -30:
-                            pos = (x,y-1)
-                        elif compass <= 120 and compass >= 60:
-                            pos = (x+1,y)
-                        elif compass <= -120 or compass >= 120:
-                            pos = (x,y+1)
-                        elif compass <= -60 and compass >= -120:
-                            pos = (x-1,y)
-
-                        
-                        if pos not in self.paredes:
-                            self.livres.add(pos)
+                    print("No space!")
+                    self.checkNearby(posM[0],posM[1],compass)
                     
-                    if self.measures.irSensor[back_id] > 1.1:
-                        
-                        if compass <= 30 and compass >= -30:
-                            pos = (x-1,y)
-                        elif compass <= 120 and compass >= 60:
-                            pos = (x,y-1)
-                        elif compass <= -120 or compass >= 120:
-                            pos = (x+1,y)
-                        elif compass <= -60 and compass >= -120:
-                            pos = (x,y+1)
-                        
-                        if pos not in self.livres:
-                            self.paredes.add(pos)
-                    else:
-                        #print("\nFree cell in front of sensor back\n")
-                        if compass <= 30 and compass >= -30:
-                            pos = (x-1,y)
-                        elif compass <= 120 and compass >= 60:
-                            pos = (x,y-1)
-                        elif compass <= -120 or compass >= 120:
-                            pos = (x+1,y)
-                        elif compass <= -60 and compass >= -120:
-                            pos = (x,y+1)
-
-                        if pos not in self.paredes:
-                            self.livres.add(pos)
-
                     self.driveMotors(0, 0)
 
                     print("\nParedes:")
@@ -494,11 +451,45 @@ class MyRob(CRobLinkAngs):
                     return False
             else:
                 self.walk()
+                if self.measures.irSensor[center_id] > 1.5:
+                    self.checkNearby(posM[0],posM[1],compass)
+                    self.driveMotors(0,0)
+                    return False
+
                 return True
         else:
             #print("here")
+            if self.measures.irSensor[center_id] > 1.5:
+                self.checkNearby(posM[0],pos[1],compass)
+                self.driveMotors(0,0)
+                return False
             self.walk()
             return True
+
+    def rotation(self, angleGoal):
+        self.readSensors()
+        compass = self.measures.compass
+
+        if angleGoal == 0:
+            if compass > 0 and compass <= 180:
+                self.driveMotors(0.05,-0.05)
+            elif compass < 0 and compass > -180:
+                self.driveMotors(-0.05,0.05)
+        elif angleGoal == 90:
+            if (compass > 90 and compass <= 180) or (compass <= -90 and compass >-180):
+                self.driveMotors(0.05,-0.05)
+            elif compass < 90 and compass > -90:
+                self.driveMotors(-0.05,0.05)
+        elif angleGoal == 180:
+            if compass >= 0 and compass < 180:
+                self.driveMotors(-0.05,0.05)
+            elif compass < 0 and compass > -180:
+                self.driveMotors(0.05,-0.05)
+        elif angleGoal == -90:
+            if (compass >= 90 and compass <= 180) or (compass < -90 and compass >-180):
+                self.driveMotors(-0.05,0.05)
+            elif compass < 90 and compass > -90:
+                self.driveMotors(0.05,-0.05)
 
 
 
