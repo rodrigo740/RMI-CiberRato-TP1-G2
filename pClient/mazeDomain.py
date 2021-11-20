@@ -1,4 +1,5 @@
 from tree_search import *
+import math
 
 
 class MazeDomain(SearchDomain):
@@ -35,7 +36,7 @@ class MazeDomain(SearchDomain):
 
     # custo estimado de chegar de um estado a outro
     def heuristic(self, state=None):
-        return 1
+        return math.sqrt(math.pow((state.rato[0]-self.goal[0]),2) + math.pow((state.rato[1]-self.goal[1]),2))
 
     # test if the given "goal" is satisfied in "state"
     def satisfies(self, state, goal):
