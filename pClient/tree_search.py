@@ -48,7 +48,7 @@ class SearchProblem:
         self.initial = initial
         self.goal = goal
     def goal_test(self, state):
-        return self.domain.satisfies(state,self.goal)
+        return self.domain.satisfies(state,self.goal, self.domain.extra_goals)
 
 # Nós de uma árvore de pesquisa
 class SearchNode:

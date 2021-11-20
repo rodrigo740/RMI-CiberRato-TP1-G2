@@ -4,11 +4,12 @@ import math
 
 class MazeDomain(SearchDomain):
 
-    def __init__(self,rato,livres,paredes,goal):
+    def __init__(self,rato,livres,paredes,goal,extra_goals):
         self.rato = rato
         self.livres = livres
         self.paredes = paredes
         self.goal = goal
+        self.extra_goals = extra_goals
         self.dict = None
 
 
@@ -20,10 +21,10 @@ class MazeDomain(SearchDomain):
                      'd' : (pos[0]+1,pos[1]),
                      's' : (pos[0],pos[1]-1),
                      'w' : (pos[0],pos[1]+1)}
-        actions = []
+        actions = set()
         for p in self.dict:
             if self.dict[p] not in self.paredes and self.dict[p] in self.livres:
-                actions.append(p)
+                actions.add(p)
         return actions
 
     # resultado de uma accao num estado, ou seja, o estado seguinte
@@ -39,8 +40,9 @@ class MazeDomain(SearchDomain):
         return math.sqrt(math.pow((state.rato[0]-self.goal[0]),2) + math.pow((state.rato[1]-self.goal[1]),2))
 
     # test if the given "goal" is satisfied in "state"
-    def satisfies(self, state, goal):
-        return state.rato == goal
+    def satisfies(self, state, goal, extra_goals):
+        if state.rato == goal or state.rato in extra_goals:
+            return True
 
 
 

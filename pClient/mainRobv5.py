@@ -50,6 +50,10 @@ class MyRob(CRobLinkAngs):
         print("hello\n")
         while True:
             self.readSensors()
+            
+            if self.measures.time == 5000:
+                self.drawMap()
+
             """
             if self.measures.endLed:
                 print(self.rob_name + " exiting")
@@ -209,6 +213,7 @@ class MyRob(CRobLinkAngs):
         if self.livres:
             self.livres.remove(best[1])
         else:
+            self.drawMap()
             print("No more free cells, quitting.")
             quit()
         """
@@ -443,37 +448,6 @@ class MyRob(CRobLinkAngs):
 
 
         compass = self.measures.compass
-
-        for i in self.livres:
-            #mapping_x = i[0] - self.initialPos[0]
-            #mapping_y = i[1] - self.initialPos[1]
-            self.mapArray[13 - i[1]][27 + i[0]] = 'O'
-
-        for i in self.visitadas:
-            #mapping_x = i[0] - self.initialPos[0]
-            #mapping_y = i[1] - self.initialPos[1]
-            self.mapArray[13 - i[1]][27 + i[0]] = 'X'
-        
-        for i in self.paredes:
-            #mapping_x = i[0] - self.initialPos[0]
-            #mapping_y = i[1] - self.initialPos[1]
-
-            if i[1] % 2 == 0:
-                if i[0] % 2 != 0:
-                    #print(mapping_x, mapping_y)
-                    self.mapArray[13 - i[1]][27 + i[0]] = '|'
-            else:
-                if i[0] % 2 == 0:
-                    self.mapArray[13 - i[1]][27 + i[0]] = '-'
-
-        self.mapArray[13][27] = 'I'
-
-        with open('mapping.out', 'w') as f:
-            for i in range(28):
-                for j in range(56):
-                    f.write(self.mapArray[i][j])
-                f.write('\n')
-
         
         if posM[0] % 2 == 0 and posM[1] % 2 == 0:
 
@@ -554,6 +528,30 @@ class MyRob(CRobLinkAngs):
             elif compass < 90 and compass > -90:
                 self.driveMotors(motor_speed,-motor_speed)
         
+    def drawMap(self):
+
+        for i in self.livres:
+            self.mapArray[13 - i[1]][27 + i[0]] = 'X'
+
+        for i in self.visitadas:
+            self.mapArray[13 - i[1]][27 + i[0]] = 'X'
+        
+        for i in self.paredes:
+
+            if i[1] % 2 == 0:
+                if i[0] % 2 != 0:
+                    self.mapArray[13 - i[1]][27 + i[0]] = '|'
+            else:
+                if i[0] % 2 == 0:
+                    self.mapArray[13 - i[1]][27 + i[0]] = '-'
+
+        self.mapArray[13][27] = 'I'
+
+        with open('mapping.out', 'w') as f:
+            for i in range(28):
+                for j in range(56):
+                    f.write(self.mapArray[i][j])
+                f.write('\n')
 
 
 
