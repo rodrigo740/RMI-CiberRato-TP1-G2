@@ -16,6 +16,8 @@ class MyRob(CRobLinkAngs):
     livres = set()
     visitadas = set()
     paredes = set()
+    beacons = set()
+    state = 'stop'
     initialPos = (0,0)
     mapArray = [[' ' for x in range(56)] for y in range(28)]
     #x linha, y coluna
@@ -38,7 +40,8 @@ class MyRob(CRobLinkAngs):
             print("Connection refused or error")
             quit()
 
-        state = 'stop'
+
+        state = self.state
         stopped_state = 'run'
         path = []
         f = True
@@ -55,6 +58,7 @@ class MyRob(CRobLinkAngs):
                 print(self.rob_name + " exiting")
                 quit()
             """
+            
             if f:
 
                 if state == 'stop' and self.measures.start:
@@ -69,7 +73,11 @@ class MyRob(CRobLinkAngs):
                         state='wait'
                     if self.measures.ground==0:
                         self.setVisitingLed(True);
-                    f = self.wander()
+                    res = self.wander()
+                    f = res[0]
+                    if res[1]:
+                        state = 'search_path'
+                        self.driveMotors(0.0,0.0)
                 elif state=='wait':
                     self.setReturningLed(True)
                     if self.measures.visitingLed==True:
@@ -82,7 +90,11 @@ class MyRob(CRobLinkAngs):
                         self.setVisitingLed(False)
                     if self.measures.returningLed==True:
                         self.setReturningLed(False)
-                    f = self.wander()
+                    res = self.wander()
+                    f = res[0]
+                    if res[1]:
+                        state = 'search_path'
+                        self.driveMotors(0.0,0.0)
 
                 elif state=='goTo':
                     currPos = (math.trunc(self.measures.x),math.trunc(self.measures.y))
@@ -154,6 +166,32 @@ class MyRob(CRobLinkAngs):
                         self.walk()
                     else:
                         state='goTo'
+                elif state=='search_path':
+                    print("About to crash")
+                    pos = (0,0)
+                    g = []
+                    temp = list(self.beacons)
+                    for (i,j) in temp:
+                        g.insert(j, i)
+                    g.append(pos)
+                    print(g)
+                    p = MazeDomain(pos, self.visitadas, self.paredes, g, self.livres)
+                    s = State(pos)
+                    problema = SearchProblem(p,s,g)
+                    tree = SearchTree(problema)
+
+                    print("\nStart")
+                    print(pos)
+                    print("Finish")
+                    print(g)
+
+                    path = tree.search2()
+                    print("Solution: ")
+                    print(path)
+                    
+                    state = 'goTo'
+                    print("END")
+                    f =True
 
 
             else:
@@ -261,6 +299,8 @@ class MyRob(CRobLinkAngs):
         right_id = 2
         back_id = 3
         
+        print(x,y)
+
         if self.measures.irSensor[center_id] > 1.1:
     
             if compass <= 30 and compass >= -30:
@@ -390,15 +430,25 @@ class MyRob(CRobLinkAngs):
             angleGoal = -90
         
         if angleGoal == 180:
-            if (compass > -178 and compass <= 0) or (compass < 178 and compass > 0):
+            if (compass > -177 and compass <= 0) or (compass < 177 and compass > 0):
                 self.rotation(180)
             else: 
-                self.driveMotors(0.15, 0.15)
+                if self.measures.irSensor[left_id] > 2:
+                    self.driveMotors(0.15, 0.14)
+                elif self.measures.irSensor[right_id] > 2:
+                    self.driveMotors(0.14,0.15)
+                else:
+                    self.driveMotors(0.15,0.15)
         else:
-            if compass > angleGoal + 2 or compass < angleGoal - 2:
+            if compass > angleGoal + 3 or compass < angleGoal - 3:
                 self.rotation(angleGoal)
             else: 
-                self.driveMotors(0.15, 0.15)
+                if self.measures.irSensor[left_id] > 2:
+                    self.driveMotors(0.15, 0.14)
+                elif self.measures.irSensor[right_id] > 2:
+                    self.driveMotors(0.14,0.15)
+                else:
+                    self.driveMotors(0.15,0.15)
 
         #if self.measures.irSensor[left_id] > 3:
         #    rot = 0.01*(1/self.measures.irSensor[left_id])
@@ -429,7 +479,7 @@ class MyRob(CRobLinkAngs):
         pos = (x,y)
         posM = (pos[0]-self.initialPos[0],pos[1]-self.initialPos[1])
         
-        threshold = 1
+        threshold = 0.8
         posM_threshold1 = (abs(x) + threshold, abs(y) + threshold)
         posM_threshold2 = (abs(x) - threshold, abs(y) - threshold)
         #print(posM_threshold)
@@ -478,28 +528,36 @@ class MyRob(CRobLinkAngs):
             if x1 <= posM_threshold1[0] and x1 >= posM_threshold2[0]:
             
                 if y2 <= posM_threshold1[1] and y2 >= posM_threshold2[1]:
+                    
+                    #if self.measures.ground != -1:
+                    #    print("adding beacon")
+                    #    self.beacons.add((posM, self.measures.ground))
+
+                     #   if int(self.nBeacons) == len(self.beacons):
+                     #       print("pathing")
+                     #       return (True, True)
 
                     self.checkNearby(posM[0],posM[1],compass)
                     
                     if self.measures.irSensor[center_id] <= 1.5:
                         self.walk()
-                        return True
+                        return (True, False)
                     else:
                 
                         self.driveMotors(0, 0)
 
                         print("\nParedes:" + str(self.paredes) + '\n')
 
-                        return False
+                        return (False, False)
                     
                 else:
                     self.walk()
                     if self.measures.irSensor[center_id] > 1.5:
                         #self.checkNearby(posM[0],posM[1],compass)
                         self.driveMotors(0,0)
-                        return False
+                        return (False, False)
 
-                    return True
+                    return (True, False)
                 
 
             else:
@@ -507,17 +565,17 @@ class MyRob(CRobLinkAngs):
                 if self.measures.irSensor[center_id] > 1.5:
                     #self.checkNearby(posM[0],posM[1],compass)
                     self.driveMotors(0,0)
-                    return False
+                    return (False, False)
 
-                return True
+                return (True, False)
             
         else:
             if self.measures.irSensor[center_id] > 1.6:
                 #self.checkNearby(posM[0],pos[1],compass)
                 self.driveMotors(0,0)
-                return False
+                return (False, False)
             self.walk()
-            return True
+            return (True, False)
 
     def rotation(self, angleGoal):
         compass = self.measures.compass

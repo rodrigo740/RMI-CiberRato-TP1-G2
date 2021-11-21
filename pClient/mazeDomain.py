@@ -31,6 +31,12 @@ class MazeDomain(SearchDomain):
     def result(self, state, action):
         return State(self.dict[action])
 
+    def result2(self, state, action):
+        if self.dict[action] in self.goal:
+            State(self.dict[action], state.beacons.append(self.dict[action]))
+        else:
+            return State(self.dict[action], state.beacons)
+
     # custo de uma accao num estado
     def cost(self, state, action):
         return 1
@@ -39,18 +45,29 @@ class MazeDomain(SearchDomain):
     def heuristic(self, state=None):
         return math.sqrt(math.pow((state.rato[0]-self.goal[0]),2) + math.pow((state.rato[1]-self.goal[1]),2))
 
+    # custo estimado de chegar de um estado a outro
+    def heuristic2(self, state=None):
+        return 1
+
     # test if the given "goal" is satisfied in "state"
     def satisfies(self, state, goal, extra_goals):
         if state.rato == goal or state.rato in extra_goals:
             return True
 
-
+    # test if the given "goal" is satisfied in "state"
+    def satisfies2(self, state, goals):
+        if len(state.beacons) != len(goals):
+            return False
+        else:
+            print(state.beacons)
+            return state.beacons[0] == goals[0] and state.beacons[len(state.beacons)-1] == goals[len(goals)-1] and goals[1] in state.beacons
 
 # Classe que define um estado
 # Posicao do robo - self.rato (x,y)
 class State():
-    def __init__(self, rato):
+    def __init__(self, rato, beacons = []):
         self.rato = rato
+        self.beacons = beacons
 
     def __str__(self):
         return "state(" + str(self.rato) + ")"
