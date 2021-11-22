@@ -58,7 +58,7 @@ class SearchNode:
         self.astar = 0
         self.depth = depth
         self.heuristic = heuristic
-        self.cost = cost
+        self.cost = 1
         self.path = set()
 
     def __str__(self):
@@ -91,7 +91,6 @@ class SearchTree:
     # procurar a solucao
     def search(self):
         heapq.heappush(self.open_nodes,self.root)
-        print("searching")
 
         while self.open_nodes != []:
 
@@ -102,6 +101,7 @@ class SearchTree:
                 node.path.add(node.state)
             else:
                 node.path.add(node.state)
+
             
             if self.problem.goal_test(node.state):
                 self.solution = node
@@ -113,7 +113,8 @@ class SearchTree:
                 newstate = self.problem.domain.result(node.state,a)
                 if newstate != None:
                     
-                    if newstate not in node.path:
+                    if newstate.rato not in self.get_path(node):
+                        
                         newnode = SearchNode(newstate,node)
 
                         newnode.heuristic = self.problem.domain.heuristic(newstate)
@@ -134,7 +135,6 @@ class SearchTree:
 
     def search2(self):
         heapq.heappush(self.open_nodes,self.root)
-        print("searching2")
 
         while self.open_nodes != []:
     
@@ -156,7 +156,7 @@ class SearchTree:
                 newstate = self.problem.domain.result2(node.state,a)
                 if newstate != None:
                     
-                    if newstate not in node.path:
+                    if newstate.rato not in self.get_path(node):
                         newnode = SearchNode(newstate,node)
 
                         newnode.heuristic = self.problem.domain.heuristic2(newstate)
