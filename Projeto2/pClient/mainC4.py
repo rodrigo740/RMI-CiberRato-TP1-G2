@@ -526,8 +526,15 @@ class MyRob(CRobLinkAngs):
 
         #print(noise)
 
-        outl = (l + self.outsl[len(self.outsl)-1])/2 * self.measures.irSensor[center_id]
-        outr = (r + self.outsr[len(self.outsr)-1])/2 * noise[0]
+        outl = (l + self.outsl[len(self.outsl)-1])/2 
+        outr = (r + self.outsr[len(self.outsr)-1])/2 
+        """
+        print("OUTL: ")
+        print(outl)
+
+        print("OUTR: ")
+        print(outr)
+        """
 
         self.outsl.append(outl)
         self.outsr.append(outr)
@@ -539,6 +546,11 @@ class MyRob(CRobLinkAngs):
 
         x = self.xt[len(self.xt)-1] + lin * math.cos(previous_t)
         y = self.yt[len(self.yt)-1] + lin * math.sin(previous_t)
+
+        print("X-> ")
+        print(x)
+        print("Y-> ")
+        print(y)
 
         self.xt.append(x)
         self.yt.append(y)
@@ -553,10 +565,10 @@ class MyRob(CRobLinkAngs):
 
         x2 = self.measures.x
         y2 = self.measures.y
-        newx = self.currx + x
-        newy = self.curry + y
+        newx = x
+        newy = y
         print("New pos: " + str((newx,newy,t)))
-        print("Current pos: " + str((self.initialPos[0]-x2,self.initialPos[1]-y2,self.measures.compass)))
+        print("Current pos: " + str((x2-self.initialPos[0],y2-self.initialPos[1],self.measures.compass)))
 
         print("\n##############################################################")
 
