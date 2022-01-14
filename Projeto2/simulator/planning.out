@@ -8,22 +8,22 @@
                                                        
                                                        
                                                        
-                                                       
-                                                       
                          - - - - - - - - - - - - - -   
-                        |XX0XXXXXXXXXXXXXXXXXXXXXXXX|  
+                        |XXXXXXX|XXXXXXXXX|XXXXXXXXX|  
+                         - - X - X - - X X X - - - X   
+                        |XX0XXXXXX|XXXXX|X|XXXXXXXXX|  
+                         X - - - X X - - X - X - - X   
+                        |XXX|XXX|XXX|XXX|1XX|XXX|XXX|  
+                         - X X - X - X X - X - X - X   
+                          |X|XXXXX|XXX|X| |XXXXX|XXX|  
+                         - X - - - X X X - - X X - X   
+                        |XXX|XXXX2XX|X|X|XXXXX|XXXXX|  
+                         X - X - - X X X X - X X - X   
+                        |X| |X|XXXXXXX|XXX|XXXXXXXXX|  
+                         X - X X - - X - - X - - - X   
+                        |XXXXXXXXXXXXXXXXXXXXXXXXXXX|  
                          - - - - - - - - - - - - - -   
-                                         1             
                                                        
                                                        
-                                                       
-                                 2                     
-                                                       
-                                                       
-                                                       
-                                                       
-                                                       
-                                                       
-                                                       
-
-2147483647.000000
+ 0 1 2 0
+76.000000

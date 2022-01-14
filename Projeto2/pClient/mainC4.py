@@ -132,7 +132,10 @@ class MyRob(CRobLinkAngs):
 
 
                     else:
-                        self.rotation(180)
+                        (l,r) = self.rotation(180)
+                        self.driveMotors(l,r)
+                        self.calcPos(l,r)
+
                         #print("rotating!\n")
 
                 elif state=='rotRight':
@@ -145,7 +148,10 @@ class MyRob(CRobLinkAngs):
                         self.walk()
 
                     else:
-                        self.rotation(0)
+                        (l,r) = self.rotation(0)
+                        self.driveMotors(l,r)
+                        self.calcPos(l,r)
+
 
                 elif state=='rotUp':
                     compass = self.measures.compass
@@ -157,7 +163,10 @@ class MyRob(CRobLinkAngs):
                         self.walk()
 
                     else:
-                        self.rotation(90)
+                        (l,r) = self.rotation(90)
+                        self.driveMotors(l,r)
+                        self.calcPos(l,r)
+
 
                 elif state=='rotDown':
                     compass = self.measures.compass
@@ -169,7 +178,9 @@ class MyRob(CRobLinkAngs):
                         self.walk()
 
                     else:
-                        self.rotation(-90)
+                        (l,r) = self.rotation(-90)
+                        self.driveMotors(l,r)
+                        self.calcPos(l,r)
 
                 elif state=='walk':
                     currPos = (math.trunc(self.measures.x),math.trunc(self.measures.y))
@@ -250,14 +261,13 @@ class MyRob(CRobLinkAngs):
                     #print("END")
                     f =True
 
-
             else:
-                #print('Stop! \n Lets start A*\n')
+                print('Stop! \n Lets start A*\n')
 
-                #print("Visited cells: ")
-                #print(self.visitadas)
-                #print("\nParedes: ")
-                #print(self.paredes)
+                print("Visited cells: ")
+                print(self.visitadas)
+                print("\nParedes: ")
+                print(self.paredes)
                 
                 pos = (math.trunc(self.measures.x),math.trunc(self.measures.y))
                 pos = (pos[0]-self.initialPos[0],pos[1]-self.initialPos[1])
@@ -268,17 +278,17 @@ class MyRob(CRobLinkAngs):
                 problema = SearchProblem(p,s,g)
                 tree = SearchTree(problema)
 
-                #print("\nStart")
-                #print(pos)
-                #print("Finish")
-                #print(g)
+                print("\nStart")
+                print(pos)
+                print("Finish")
+                print(g)
 
                 path = tree.search()
-                #print("Solution: ")
-                #print(path)
+                print("Solution: ")
+                print(path)
                 
                 state = 'goTo'
-                #print("END")
+                print("END")
                 f =True
 
     
@@ -522,9 +532,15 @@ class MyRob(CRobLinkAngs):
         
         self.driveMotors(l,r)
 
-        noise = np.random.normal(1,1.5*1.5,1)
+        self.calcPos(l,r)
 
-        #print(noise)
+        noise = np.random.normal(1,1.5*1.5,1)
+        
+
+
+
+
+    def calcPos(self, l, r):
 
         outl = (l + self.outsl[len(self.outsl)-1])/2 
         outr = (r + self.outsr[len(self.outsr)-1])/2 
@@ -577,7 +593,150 @@ class MyRob(CRobLinkAngs):
         self.curry = newy
 
 
+    def correctPos(self):
+        center_id = 0
+        left_id = 1
+        right_id = 2
+        back_id = 3
+        compass = self.measures.compass
 
+        if self.measures.irSensor[center_id] > 1.1:
+    
+            if compass <= 30 and compass >= -30:
+                xw = self.currx + 1
+                correctedX = xw - 0.1 - 1/self.measures.irSensor[center_id] - 0.5
+                self.currx = correctedX
+                self.xt.append(correctedX)
+
+                print("Corrected x: ")
+                print(correctedX)
+            elif compass <= 120 and compass >= 60:
+                if self.measures.irSensor[left_id] > 1.1:
+                    
+                    xw = self.currx - 1
+                    correctedX = xw - 0.1 - 1/self.measures.irSensor[left_id] - 0.5
+                    self.currx = correctedX
+                    self.xt.append(correctedX)
+
+                    print("Corrected x: ")
+                    print(correctedX)
+                elif self.measures.irSensor[right_id] > 1.1:
+                    xw = self.currx + 1
+                    correctedX = xw - 0.1 - 1/self.measures.irSensor[right_id] - 0.5
+                    self.currx = correctedX
+                    self.xt.append(correctedX)
+
+                    print("Corrected x: ")
+                    print(correctedX)
+
+            elif compass <= -120 or compass >= 120:
+                xw = self.currx - 1
+                correctedX = xw - 0.1 - 1/self.measures.irSensor[center_id] - 0.5
+                self.currx = correctedX
+                self.xt.append(correctedX)
+
+                print("Corrected x: ")
+                print(correctedX)
+            elif compass <= -60 and compass >= -120:
+                if self.measures.irSensor[left_id] > 1.1:
+                    
+                    xw = self.currx + 1
+                    correctedX = xw - 0.1 - 1/self.measures.irSensor[left_id] - 0.5
+                    self.currx = correctedX
+                    self.xt.append(correctedX)
+
+                    print("Corrected x: ")
+                    print(correctedX)
+                elif self.measures.irSensor[right_id] > 1.1:
+                    xw = self.currx - 1
+                    correctedX = xw - 0.1 - 1/self.measures.irSensor[right_id] - 0.5
+                    self.currx = correctedX
+                    self.xt.append(correctedX)
+
+                    print("Corrected x: ")
+                    print(correctedX)
+
+           
+        """
+        if self.measures.irSensor[left_id] > 1.1:
+
+            if compass <= 30 and compass >= -30:
+                pass
+            elif compass <= 120 and compass >= 60:
+                pos = (x-1,y)
+            elif compass <= -120 or compass >= 120:
+                pos = (x,y-1)
+            elif compass <= -60 and compass >= -120:
+                pos = (x+1,y)
+
+        else:
+            #print("\nFree cell in front of sensor left\n")
+            if compass <= 30 and compass >= -30:
+                pos = (x,y+1)
+            elif compass <= 120 and compass >= 60:
+                pos = (x-1,y)
+            elif compass <= -120 or compass >= 120:
+                pos = (x,y-1)
+            elif compass <= -60 and compass >= -120:
+                pos = (x+1,y)
+            
+       
+            
+        if self.measures.irSensor[right_id] > 1.1:
+            
+            if compass <= 30 and compass >= -30:
+                pos = (x,y-1)
+            elif compass <= 120 and compass >= 60:
+                pos = (x+1,y)
+            elif compass <= -120 or compass >= 120:
+                pos = (x,y+1)
+            elif compass <= -60 and compass >= -120:
+                pos = (x-1,y)
+
+     
+
+        else:
+            #print("\nFree cell in front of sensor right\n")
+            if compass <= 30 and compass >= -30:
+                pos = (x,y-1)
+            elif compass <= 120 and compass >= 60:
+                pos = (x+1,y)
+            elif compass <= -120 or compass >= 120:
+                pos = (x,y+1)
+            elif compass <= -60 and compass >= -120:
+                pos = (x-1,y)
+            
+       
+        
+        if self.measures.irSensor[back_id] > 1.1:
+            
+            if compass <= 30 and compass >= -30:
+                pos = (x-1,y)
+            elif compass <= 120 and compass >= 60:
+                pos = (x,y-1)
+            elif compass <= -120 or compass >= 120:
+                pos = (x+1,y)
+            elif compass <= -60 and compass >= -120:
+                pos = (x,y+1)
+            
+            
+
+        else:
+            #print("\nFree cell in front of sensor back\n")
+            if compass <= 30 and compass >= -30:
+                pos = (x-1,y)
+            elif compass <= 120 and compass >= 60:
+                pos = (x,y-1)
+            elif compass <= -120 or compass >= 120:
+                pos = (x+1,y)
+            elif compass <= -60 and compass >= -120:
+                pos = (x,y+1)
+
+        """
+
+        #xw = 1 + 2 * self.currx
+
+        
 
 
 
@@ -618,6 +777,11 @@ class MyRob(CRobLinkAngs):
                         self.beacons.add((posM, self.measures.ground))
 
                         if int(self.nBeacons) == len(self.beacons):
+                            #print("\nParedes:" + str(self.paredes) + '\n')
+
+                            #self.correctPos()
+
+
                             return (False, False)
 
                     self.checkNearby(posM[0],posM[1],compass)
@@ -629,7 +793,9 @@ class MyRob(CRobLinkAngs):
                 
                         self.driveMotors(0, 0)
 
-                        #print("\nParedes:" + str(self.paredes) + '\n')
+                        #self.correctPos()
+
+                        print("\nParedes:" + str(self.paredes) + '\n')
 
                         return (False, False)
                     
@@ -637,7 +803,10 @@ class MyRob(CRobLinkAngs):
                     self.walk()
                     if self.measures.irSensor[center_id] > 1.5:
                         #self.checkNearby(posM[0],posM[1],compass)
-                        #self.driveMotors(0,0)
+                        #print("\nParedes:" + str(self.paredes) + '\n')
+                        #self.correctPos()
+
+                        self.driveMotors(0,0)
                         return (False, False)
 
                     return (True, False)
@@ -647,7 +816,11 @@ class MyRob(CRobLinkAngs):
                 self.walk()
                 if self.measures.irSensor[center_id] > 1.5:
                     #self.checkNearby(posM[0],posM[1],compass)
-                    #self.driveMotors(0,0)
+
+                    #print("\nParedes:" + str(self.paredes) + '\n')
+                    #self.correctPos()
+
+                    self.driveMotors(0,0)
                     return (False, False)
 
                 return (True, False)
@@ -655,6 +828,11 @@ class MyRob(CRobLinkAngs):
         else:
             if self.measures.irSensor[center_id] > 1.6:
                 #self.checkNearby(posM[0],pos[1],compass)
+
+                #print("\nParedes:" + str(self.paredes) + '\n')
+                self.correctPos()
+
+
                 self.driveMotors(0,0)
                 return (False, False)
             self.walk()
