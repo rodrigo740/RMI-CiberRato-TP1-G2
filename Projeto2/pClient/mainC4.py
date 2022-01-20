@@ -65,6 +65,7 @@ class MyRob(CRobLinkAngs):
 
         #print("hello\n")
         while True:
+            print("\n tick \n")
             self.readSensors()
             
             if self.measures.endLed:
@@ -118,6 +119,7 @@ class MyRob(CRobLinkAngs):
                     currPos = (currPos[0]-math.trunc(self.initialPos[0]),currPos[1]-math.trunc(self.initialPos[1]))
                     
                     if len(path) > 1:
+                        self.correctPos()
                         state = self.goTo(path[0],path[1])
                     elif currPos == path[0]:
                         state='run'
@@ -191,7 +193,7 @@ class MyRob(CRobLinkAngs):
                     print(self.initialPos)
                     currPos = (self.measures.x, self.measures.y)
                     print(currPos)
-                    currPos = (round(currPos[0]-math.trunc(self.initialPos[0])),round(currPos[1]-math.trunc(self.initialPos[1])))
+                    currPos = (round(currPos[0]-self.initialPos[0]),round(currPos[1]-self.initialPos[1]))
                     print("position in walk is:")
                     print(currPos)
                     if currPos != path[0]:
@@ -386,6 +388,11 @@ class MyRob(CRobLinkAngs):
         right_id = 2
         back_id = 3
         
+        print("sensor measures")
+        print(self.measures.irSensor[center_id])
+        print(self.measures.irSensor[left_id])
+        print(self.measures.irSensor[right_id])
+
         if self.measures.irSensor[center_id] > 1.1:
     
             if compass <= 30 and compass >= -30:
@@ -569,7 +576,8 @@ class MyRob(CRobLinkAngs):
 
 
         lin = (outl + outr)/2
-
+        print("lin")
+        print(lin)
         previous_t = self.teta
 
         x = self.xt + lin * math.cos(math.radians(self.measures.compass))
@@ -858,12 +866,15 @@ class MyRob(CRobLinkAngs):
         compass = self.measures.compass
         
         if posM[0] % 2 == 0 and posM[1] % 2 == 0:
-            print("checking threshold")
+            print("checking threshold x")
             print(x1)
             print(posM_threshold1[0])
             print(posM_threshold2[0])
             if x1 <= posM_threshold1[0] and x1 >= posM_threshold2[0]:
-            
+                print("checking threshold y")
+                print(y2)
+                print(posM_threshold1[1])
+                print(posM_threshold2[1])
                 if y2 <= posM_threshold1[1] and y2 >= posM_threshold2[1]:
                     
                     if self.measures.ground != -1:
