@@ -241,12 +241,12 @@ class MyRob(CRobLinkAngs):
 
 
             else:
-                #print('Stop! \n Lets start A*\n')
+                print('Stop! \n Lets start A*\n')
 
-                #print("Visited cells: ")
-                #print(self.visitadas)
-                #print("\nParedes: ")
-                #print(self.paredes)
+                print("Visited cells: ")
+                print(self.visitadas)
+                print("\nParedes: ")
+                print(self.paredes)
                 
                 pos = (math.trunc(self.measures.x),math.trunc(self.measures.y))
                 pos = (pos[0]-self.initialPos[0],pos[1]-self.initialPos[1])
@@ -571,7 +571,7 @@ class MyRob(CRobLinkAngs):
                 
                         self.driveMotors(0, 0)
 
-                        #print("\nParedes:" + str(self.paredes) + '\n')
+                        print("\nParedes:" + str(self.paredes) + '\n')
 
                         return (False, False)
                     
