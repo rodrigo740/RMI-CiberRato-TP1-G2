@@ -128,9 +128,11 @@ class MyRob(CRobLinkAngs):
                     if len(path) > 1:
                         if self.measures.irSensor[0] > 1.1:
                             self.correctPos()
-                        self.calcPos(self.previous_l,self.previous_r)
+                        else:
+                            self.calcPos(self.previous_l,self.previous_r)
                         state = self.goTo(path[0],path[1])
                     elif currPos == path[0]:
+                        self.calcPos(self.previous_l,self.previous_r)
                         state='run'
                         #print("Done Walking!")
                     
