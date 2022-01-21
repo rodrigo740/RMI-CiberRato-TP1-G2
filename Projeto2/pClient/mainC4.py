@@ -30,6 +30,9 @@ class MyRob(CRobLinkAngs):
     xt = 0
     yt = 0
 
+    previous_l = 0
+    previous_r = 0
+
     currx = 0
     curry = 0
 
@@ -65,9 +68,8 @@ class MyRob(CRobLinkAngs):
 
         #print("hello\n")
         while True:
-            print("\n tick \n")
             self.readSensors()
-            
+            print("\n" + str(self.measures.time) + "\n")
             if self.measures.endLed:
                 #print(self.rob_name + " exiting")
                 quit()
@@ -115,11 +117,18 @@ class MyRob(CRobLinkAngs):
                         self.driveMotors(0.0,0.0)
 
                 elif state=='goTo':
-                    currPos = (math.trunc(self.measures.x),math.trunc(self.measures.y))
-                    currPos = (currPos[0]-math.trunc(self.initialPos[0]),currPos[1]-math.trunc(self.initialPos[1]))
+                    #currPos = (math.trunc(self.measures.x),math.trunc(self.measures.y))
+                    #currPos = (currPos[0]-math.trunc(self.initialPos[0]),currPos[1]-math.trunc(self.initialPos[1]))
                     
+                    print("ENTERING STATE goto")
+                    
+                    currPos = (self.measures.x, self.measures.y)
+                    currPos = (round(currPos[0]-self.initialPos[0]),round(currPos[1]-self.initialPos[1]))
+
                     if len(path) > 1:
-                        self.correctPos()
+                        if self.measures.irSensor[0] > 1.1:
+                            self.correctPos()
+                        self.calcPos(self.previous_l,self.previous_r)
                         state = self.goTo(path[0],path[1])
                     elif currPos == path[0]:
                         state='run'
@@ -199,6 +208,7 @@ class MyRob(CRobLinkAngs):
                     if currPos != path[0]:
                         self.walk()
                     else:
+                        self.calcPos(self.previous_l,self.previous_r)
                         state='goTo'
                 elif state=='search_path':
 
@@ -613,6 +623,9 @@ class MyRob(CRobLinkAngs):
         self.currx = newx
         self.curry = newy
 
+        self.previous_l = l
+        self.previous_r = r
+
 
     def correctPos(self):
         center_id = 0
@@ -840,18 +853,23 @@ class MyRob(CRobLinkAngs):
     def wander(self):
         center_id = 0
 
+        print("In state wander")
         x1 = self.measures.x
         y2 = self.measures.y
         
+        print(x1, y2)
+        print(self.initialPos)
+
         x = math.trunc(x1)
         y = math.trunc(y2)
 
         pos = (x,y)
-        posM = (pos[0]-math.trunc(self.initialPos[0]),pos[1]-math.trunc(self.initialPos[1]))
+        posM = (round(x1-self.initialPos[0]),round(y2-self.initialPos[1]))
+        (pos[0]-math.trunc(self.initialPos[0]),pos[1]-math.trunc(self.initialPos[1]))
         
         threshold = 0.8
-        posM_threshold1 = (abs(x) + threshold, abs(y) + threshold)
-        posM_threshold2 = (abs(x) - threshold, abs(y) - threshold)
+        posM_threshold1 = (abs(posM[0]) + threshold, abs(posM[1]) + threshold)
+        posM_threshold2 = (abs(posM[0]) - threshold, abs(posM[1]) - threshold)
         #print(posM_threshold)
         #print(self.measures.x)
         #print(self.measures.y)
@@ -862,6 +880,8 @@ class MyRob(CRobLinkAngs):
         #print(self.livres)
         #print(self.paredes)
 
+        x1 = abs(posM[0])
+        y2 = abs(posM[1])
 
         compass = self.measures.compass
         
