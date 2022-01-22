@@ -81,16 +81,16 @@ class MyRob(CRobLinkAngs):
             if f:
 
                 if state == 'stop' and self.measures.start:
+                    print("ENTERING STATE STOP")
                     state = stopped_state
 
                 if state != 'stop' and self.measures.stop:
+                    print("ENTERING STATE STOP")
                     stopped_state = state
                     state = 'stop'
 
                 if state == 'run':
                     print("ENTERING STATE RUN")
-                    if self.measures.visitingLed==True:
-                        state='wait'
                     if self.measures.ground==0:
                         self.setVisitingLed(True);
                     res = self.wander()
@@ -99,6 +99,7 @@ class MyRob(CRobLinkAngs):
                         state = 'search_path'
                         self.driveMotors(0.0,0.0)
                 elif state=='wait':
+                    print("ENTERING STATE WAIT")
                     self.setReturningLed(True)
                     if self.measures.visitingLed==True:
                         self.setVisitingLed(False)
@@ -106,6 +107,7 @@ class MyRob(CRobLinkAngs):
                         state='return'
                     self.driveMotors(0.0,0.0)
                 elif state=='return':
+                    print("ENTERING STATE RETURN")
                     if self.measures.visitingLed==True:
                         self.setVisitingLed(False)
                     if self.measures.returningLed==True:
@@ -566,7 +568,7 @@ class MyRob(CRobLinkAngs):
         self.calcPos(l,r)
 
         noise = np.random.normal(1,1.5*1.5,1)
-        
+        print("exiting walk")
 
 
 
