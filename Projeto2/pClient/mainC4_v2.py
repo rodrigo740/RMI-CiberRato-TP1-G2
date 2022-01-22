@@ -42,6 +42,9 @@ class MyRob(CRobLinkAngs):
 
     lastTick = 0
 
+    finishing = False
+    fpx = 0
+    fpy = 0
 
     def __init__(self, rob_name, rob_id, angles, host):
         CRobLinkAngs.__init__(self, rob_name, rob_id, angles, host)
@@ -70,15 +73,21 @@ class MyRob(CRobLinkAngs):
 
         #self.initialPos = (math.trunc(self.measures.x),math.trunc(self.measures.y))
 
-        self.initialPos = (self.measures.x,self.measures.y)
+        #self.initialPos = (self.measures.x,self.measures.y)
+        self.initialPos = (0,0)
 
-        #print("hello\n")
+        self.fpx = self.measures.x
+        self.fpy = self.measures.y
+
+        #print("Initial pos: " + str(self.initialPos))
+
+        ##print("hello\n")
         while True:
             self.readSensors()
-            #print("\n" + str(self.measures.time) + "\n")
+            print("\n" + str(self.measures.time) + "\n")
             self.lastTick = self.measures.time
             if self.measures.endLed:
-                #print(self.rob_name + " exiting")
+                print(self.rob_name + " exiting")
                 quit()
 
             if self.measures.time == 4990:
@@ -86,6 +95,7 @@ class MyRob(CRobLinkAngs):
                 self.final_path()
             
             if f:
+                print("Inside F")
 
                 if state == 'stop' and self.measures.start:
                     state = stopped_state
@@ -95,9 +105,8 @@ class MyRob(CRobLinkAngs):
                     state = 'stop'
 
                 if state == 'run':
-                    print("ENTERING STATE RUN")
-                    if self.measures.visitingLed==True:
-                        state='wait'
+                    #print("ENTERING STATE RUN")
+                    
                     if self.measures.ground==0:
                         self.setVisitingLed(True);
                     res = self.wander()
@@ -129,9 +138,12 @@ class MyRob(CRobLinkAngs):
                     
                     print("ENTERING STATE goto")
                     
-                    currPos = (self.measures.x, self.measures.y)
-                    currPos = (round(currPos[0]-self.initialPos[0]),round(currPos[1]-self.initialPos[1]))
+                    #currPos = (self.measures.x, self.measures.y)
+                    #currPos = (round(currPos[0]-self.initialPos[0]),round(currPos[1]-self.initialPos[1]))
 
+                    currPos = (round(self.currx), round(self.curry))
+                    #currPos = (round(currPos[0]-self.initialPos[0]),round(currPos[1]-self.initialPos[1]))
+                    
                     if len(path) > 1:
                         if self.measures.irSensor[0] > 1.1:
                             self.correctPos()
@@ -140,17 +152,54 @@ class MyRob(CRobLinkAngs):
                         state = self.goTo(path[0],path[1])
                     elif currPos == path[0]:
                         self.calcPos(self.previous_l,self.previous_r)
-                        state='run'
-                        #print("Done Walking!")
-                    
+                        ##print("Done Walking!")
+                        if self.finishing:
+                            self.driveMotors(0,0)
+                            
+                            print("All done, quitting.")
+                                                        
+                            self.finish()
+                            """
+                            yvals = []
+                            #print(self.lastTick)
+
+                            
+                            for i in range(0,len(self.diffx)):
+                                yvals.append(i)
+
+                            #print("amount of ticks: " + str(len(yvals)))
+                            #print("amount of diffx: " + str(len(self.diffx)))
+                            #print("amount of diffy: " + str(len(self.diffy)))
+                            
+                            plt.plot(self.diffx, yvals, label = "diff x")
+                            plt.plot(self.diffy, yvals, label = "diff y")
+
+                            # naming the x axis
+                            plt.xlabel('x - axis')
+                            # naming the y axis
+                            plt.ylabel('y - axis')
+                            # giving a title to my graph
+                            plt.title('Two lines on same graph!')
+                            
+                            # show a legend on the plot
+                            plt.legend()
+                            
+                            # function to show the plot
+                            plt.show()
+                            """
+
+
+                        else:
+                            state='run'
+                
                 elif state=='rotLeft':
-                    print("ENTERING STATE ROT LEFT")
+                    #print("ENTERING STATE ROT LEFT")
                     compass = self.measures.compass
-                    #print(compass)
+                    ##print(compass)
 
                     #if compass > 170 or compass < -170:
                     if compass > 178 or compass < -178:
-                        #print("rotate done!\n")
+                        ##print("rotate done!\n")
                         state = 'walk'
                         path.pop(0)
                         self.walk()
@@ -161,10 +210,10 @@ class MyRob(CRobLinkAngs):
                         self.driveMotors(l,r)
                         self.calcPos(l,r)
 
-                        #print("rotating!\n")
+                        ##print("rotating!\n")
 
                 elif state=='rotRight':
-                    print("ENTERING STATE ROT RIGHT")
+                    #print("ENTERING STATE ROT RIGHT")
 
                     compass = self.measures.compass
 
@@ -181,7 +230,7 @@ class MyRob(CRobLinkAngs):
 
 
                 elif state=='rotUp':
-                    print("ENTERING STATE ROT UP")
+                    #print("ENTERING STATE ROT UP")
 
                     compass = self.measures.compass
 
@@ -198,7 +247,7 @@ class MyRob(CRobLinkAngs):
 
 
                 elif state=='rotDown':
-                    print("ENTERING STATE ROT DOWN")
+                    #print("ENTERING STATE ROT DOWN")
 
                     compass = self.measures.compass
 
@@ -214,14 +263,15 @@ class MyRob(CRobLinkAngs):
                         self.calcPos(l,r)
 
                 elif state=='walk':
-                    print("ENTERING STATE ROT WALK")
+                    #print("ENTERING STATE WALK")
 
-                    print(self.initialPos)
-                    currPos = (self.measures.x, self.measures.y)
-                    print(currPos)
-                    currPos = (round(currPos[0]-self.initialPos[0]),round(currPos[1]-self.initialPos[1]))
-                    print("position in walk is:")
-                    print(currPos)
+                    #print(self.initialPos)
+                    #currPos = (self.measures.x, self.measures.y)
+                    ##print(currPos)
+                    #currPos = (round(currPos[0]-self.initialPos[0]),round(currPos[1]-self.initialPos[1]))
+                    currPos = (round(self.currx), round(self.curry))
+                    #print("position in walk is:")
+                    #print(currPos)
                     if currPos != path[0]:
                         self.walk()
                     else:
@@ -229,11 +279,11 @@ class MyRob(CRobLinkAngs):
                         state='goTo'
                 elif state=='search_path':
 
-                    #print("Visited cells: ")
-                    #print(self.visitadas)
-                    #print("\nParedes: ")
-                    #print(self.paredes)
-                    print("ENTERING STATE search_path")
+                    ##print("Visited cells: ")
+                    ##print(self.visitadas)
+                    ##print("\nParedes: ")
+                    ##print(self.paredes)
+                    #print("ENTERING STATE search_path")
 
                     pos = (0,0)
                     fullPath = [(0, 0)]
@@ -245,12 +295,12 @@ class MyRob(CRobLinkAngs):
                     start = pos
                     beac.remove(pos)
 
-                    #print(beac)
+                    ##print(beac)
 
                     for b in beac:
 
-                        #print("\nStart")
-                        #print(start)
+                        ##print("\nStart")
+                        ##print(start)
                         
                         g = b#self.nearestBeacon(start, beac)
 
@@ -259,12 +309,12 @@ class MyRob(CRobLinkAngs):
                         problema = SearchProblem(p,s,g)
                         tree = SearchTree(problema)
 
-                        #print("Finish")
-                        #print(g)
+                        ##print("Finish")
+                        ##print(g)
 
                         path = tree.search()
-                        #print("Solution: ")
-                        #print(path)
+                        ##print("Solution: ")
+                        ##print(path)
                         #beac.remove(g)
 
                         fullPath.extend(path[1:])
@@ -277,41 +327,43 @@ class MyRob(CRobLinkAngs):
                     problema = SearchProblem(p,s,g)
                     tree = SearchTree(problema)
     
-                    #print("\nStart")
-                    #print(start)
-                    #print("Finish")
-                    #print(g)
+                    ##print("\nStart")
+                    ##print(start)
+                    ##print("Finish")
+                    ##print(g)
 
                     path = tree.search()
-                    #print("Solution: ")
-                    #print(path)
+                    ##print("Solution: ")
+                    ##print(path)
 
                     fullPath.extend(path[1:])
                     
-                    #print("Full path: ")
-                    #print(fullPath)
+                    ##print("Full path: ")
+                    ##print(fullPath)
 
                     state = 'goTo'
 
                     self.path_to_file(fullPath)
                     self.finish()
 
-                    #print("END")
+                    ##print("END")
                     f =True
 
             else:
                 print('Stop! \n Lets start A*\n')
                 self.drawMap()
 
-                print("Visited cells: ")
-                print(self.visitadas)
-                print("\nParedes: ")
-                print(self.paredes)
-                print("\nLivres: ")
-                print(self.livres)
+                ##print("Visited cells: ")
+                ##print(self.visitadas)
+                ##print("\nParedes: ")
+                ##print(self.paredes)
+                ##print("\nLivres: ")
+                ##print(self.livres)
                 
-                pos = (math.trunc(self.measures.x),math.trunc(self.measures.y))
-                pos = (pos[0]-math.trunc(self.initialPos[0]),pos[1]-math.trunc(self.initialPos[1]))
+                #pos = (math.trunc(self.measures.x),math.trunc(self.measures.y))
+                #pos = (pos[0]-math.trunc(self.initialPos[0]),pos[1]-math.trunc(self.initialPos[1]))
+
+                pos = (round(self.currx), round(self.curry))
 
                 g = self.searchFreeCell(pos)
                 p = MazeDomain(pos, self.visitadas, self.paredes, g, self.livres)
@@ -319,90 +371,53 @@ class MyRob(CRobLinkAngs):
                 problema = SearchProblem(p,s,g)
                 tree = SearchTree(problema)
 
-                print("\nStart")
-                print(pos)
-                print("Finish")
-                print(g)
+                ##print("\nStart")
+                ##print(pos)
+                ##print("Finish")
+                ##print(g)
 
                 path = tree.search()
-                print("Solution: ")
-                print(path)
+                ##print("Solution: ")
+                ##print(path)
                 
                 state = 'goTo'
-                print("END")
+                ##print("END")
                 f =True
 
     
     # Função que procura uma celula livre nao visitada
     def searchFreeCell(self,pos):
-        #print("Searching for free cell")
+        ##print("Searching for free cell")
         best = (10000,(0,0))
 
         self.livres.difference_update(self.visitadas)
 
-        #print("\nLivres: ")
-        #print(self.livres)
+        ##print("\nLivres: ")
+        ##print(self.livres)
 
         for p in self.livres:
             dist = math.sqrt(math.pow((p[0]-pos[0]),2) + math.pow((p[1]-pos[1]),2))
             if dist < best[0]:
                 best = (dist, p)
-        #print("Best: " + str(best))
+        ##print("Best: " + str(best))
         self.visitadas.add(best[1])
         
         if self.livres:
             self.livres.remove(best[1])
         else:
-            print("No more free cells, returning home.")
-
-            return (0,0)
-
-            yvals = []
-            print(self.lastTick)
-
-            for i in self.diffx:
-                print(i)
-
-
-            for i in range(0,len(self.diffx)):
-                yvals.append(i)
-
-            print("amount of ticks: " + str(len(yvals)))
-            print("amount of diffx: " + str(len(self.diffx)))
-            print("amount of diffy: " + str(len(self.diffy)))
-
-            plt.plot(self.diffx, yvals, label = "diff x")
-            plt.plot(self.diffy, yvals, label = "diff y")
-
-            
-
-
-            # naming the x axis
-            plt.xlabel('x - axis')
-            # naming the y axis
-            plt.ylabel('y - axis')
-            # giving a title to my graph
-            plt.title('Two lines on same graph!')
-            
-            # show a legend on the plot
-            plt.legend()
-            
-            # function to show the plot
-            plt.show()
-
+            self.finishing = True
 
             self.drawMap()
             self.final_path()
-        """
-        if best[1] in self.paredes:
-            self.paredes.remove(best[1])
-        """
+        
+            #print("No more free cells, returning home.")
 
+            return (0,0)
 
         return best[1]
 
     def nearestBeacon(self, pos, beac):
-        #print("Searching nearest Beacon!")
+        ##print("Searching nearest Beacon!")
 
         best = (10000,(0,0))
 
@@ -411,7 +426,7 @@ class MyRob(CRobLinkAngs):
             if dist < best[0]:
                 best = (dist, p)
 
-        #print("Best beacon: " + str(best))
+        ##print("Best beacon: " + str(best))
         
         return best[1]
 
@@ -426,22 +441,22 @@ class MyRob(CRobLinkAngs):
         if pos1Abs[1] - pos2Abs[1] == 0: #mesma linha
             if pos1[0] < pos2[0]: # mov para a direita
                 
-                #print("direita")
+                ##print("direita")
                 return 'rotRight'
             else: #mov para a esquerda
                 
-                #print("esquerda")
+                ##print("esquerda")
                 return 'rotLeft'
 
         elif pos1Abs[0] - pos2Abs[0] == 0: #mesma coluna
             if pos1[1] > pos2[1]: # mov para baixo
                 
-                #print("baixo")
+                ##print("baixo")
                 return 'rotDown'
 
             else: #mov para cima
                 
-                #print("cima")
+                ##print("cima")
                 return 'rotUp'
             
 
@@ -452,10 +467,10 @@ class MyRob(CRobLinkAngs):
         right_id = 2
         back_id = 3
         
-        print("sensor measures")
-        print(self.measures.irSensor[center_id])
-        print(self.measures.irSensor[left_id])
-        print(self.measures.irSensor[right_id])
+        #print("sensor measures")
+        #print(self.measures.irSensor[center_id])
+        #print(self.measures.irSensor[left_id])
+        #print(self.measures.irSensor[right_id])
 
         if self.measures.irSensor[center_id] > 1.1:
     
@@ -485,7 +500,7 @@ class MyRob(CRobLinkAngs):
             if pos not in self.livres:
                 self.paredes.add(pos)
         else:
-            #print("\nFree cell in front of sensor left\n")
+            ##print("\nFree cell in front of sensor left\n")
             if compass <= 30 and compass >= -30:
                 pos = (x,y+1)
             elif compass <= 120 and compass >= 60:
@@ -514,7 +529,7 @@ class MyRob(CRobLinkAngs):
                 self.paredes.add(pos)
 
         else:
-            #print("\nFree cell in front of sensor right\n")
+            ##print("\nFree cell in front of sensor right\n")
             if compass <= 30 and compass >= -30:
                 pos = (x,y-1)
             elif compass <= 120 and compass >= 60:
@@ -543,7 +558,7 @@ class MyRob(CRobLinkAngs):
                 self.paredes.add(pos)
 
         else:
-            #print("\nFree cell in front of sensor back\n")
+            ##print("\nFree cell in front of sensor back\n")
             if compass <= 30 and compass >= -30:
                 pos = (x-1,y)
             elif compass <= 120 and compass >= 60:
@@ -628,11 +643,11 @@ class MyRob(CRobLinkAngs):
         outl = (l + self.outsl)/2 
         outr = (r + self.outsr)/2 
         """
-        print("OUTL: ")
-        print(outl)
+        #print("OUTL: ")
+        #print(outl)
 
-        print("OUTR: ")
-        print(outr)
+        #print("OUTR: ")
+        #print(outr)
         """
 
         self.outsl = outl
@@ -640,17 +655,17 @@ class MyRob(CRobLinkAngs):
 
 
         lin = (outl + outr)/2
-        #print("lin")
-        #print(lin)
+        ##print("lin")
+        ##print(lin)
         previous_t = self.teta
 
         x = self.xt + lin * math.cos(math.radians(self.measures.compass))
         y = self.yt + lin * math.sin(math.radians(self.measures.compass))
 
-        #print("X-> ")
-        #print(x)
-        #print("Y-> ")
-        #print(y)
+        ##print("X-> ")
+        ##print(x)
+        ##print("Y-> ")
+        ##print(y)
 
         self.xt = x
         self.yt = y
@@ -669,13 +684,14 @@ class MyRob(CRobLinkAngs):
         newy = y
         print("Motor strength: "+ str((l,r)))
         print("New pos: " + str((newx,newy,t)))
-        print("Current pos: " + str((x2-self.initialPos[0],y2-self.initialPos[1],self.measures.compass)))
+        print("Current pos: " + str((x2,y2,self.measures.compass)))
 
         dfx = (x2-self.initialPos[0]) - newx
         dfy = (y2-self.initialPos[1]) - newy
 
-        self.diffx.append(dfx)
-        self.diffy.append(dfy)
+        # plot values
+        #self.diffx.append(dfx)
+        #self.diffy.append(dfy)
 
         print("\n##############################################################")
 
@@ -705,14 +721,14 @@ class MyRob(CRobLinkAngs):
                     xw = temp_currx + 1
                 else:
                     xw = temp_currx + 2
-                print("Wall is at: ")
-                print(xw)
+                #print("Wall is at: ")
+                #print(xw)
                 correctedX = xw - 0.1 - 1/self.measures.irSensor[center_id] - 0.5
                 self.currx = correctedX
                 self.xt = correctedX
 
-                print("Corrected x: ")
-                print(correctedX)
+                #print("Corrected x: ")
+                #print(correctedX)
 
 
                 if self.measures.irSensor[left_id] > 1.1:
@@ -728,8 +744,8 @@ class MyRob(CRobLinkAngs):
                     self.curry = correctedY
                     self.yt = correctedY
 
-                    print("(Left) Corrected y: ")
-                    print(correctedY)
+                    #print("(Left) Corrected y: ")
+                    #print(correctedY)
 
                 elif self.measures.irSensor[right_id] > 1.1:
                     if temp_curry % 2 == 0 : 
@@ -744,13 +760,13 @@ class MyRob(CRobLinkAngs):
                     self.curry = correctedY
                     self.yt = correctedY
 
-                    print("(Right) Corrected y: ")
-                    print(correctedY)
+                    #print("(Right) Corrected y: ")
+                    #print(correctedY)
 
 
             elif compass <= 120 and compass >= 60:
                 if self.measures.irSensor[left_id] > 1.1:
-                    print("correcting!!!!!!!!!!!!!!!")
+                    #print("correcting!!!!!!!!!!!!!!!")
 
                     if temp_currx % 2 == 0 : 
                         xw = temp_currx - 1
@@ -760,16 +776,16 @@ class MyRob(CRobLinkAngs):
                         else:
                             xw = temp_currx - 2
 
-                    print(xw)
+                    #print(xw)
                     correctedX = xw + 0.1 + 1/self.measures.irSensor[left_id] + 0.5
-                    print(correctedX)
-                    print(self.currx)
-                    print(self.xt)
+                    #print(correctedX)
+                    #print(self.currx)
+                    #print(self.xt)
                     self.currx = correctedX
                     self.xt = correctedX
 
-                    print("(Left) Corrected x: ")
-                    print(correctedX)
+                    #print("(Left) Corrected x: ")
+                    #print(correctedX)
                 elif self.measures.irSensor[right_id] > 1.1:
 
                     if temp_currx % 2 == 0 : 
@@ -784,8 +800,8 @@ class MyRob(CRobLinkAngs):
                     self.currx = correctedX
                     self.xt = correctedX
 
-                    print("(Right) Corrected x: ")
-                    print(correctedX)
+                    #print("(Right) Corrected x: ")
+                    #print(correctedX)
 
                 if temp_curry % 2 == 0 : 
                     yw = temp_curry + 1
@@ -799,8 +815,8 @@ class MyRob(CRobLinkAngs):
                 self.curry = correctedY
                 self.yt = correctedY
 
-                print("Corrected y: ")
-                print(correctedY)
+                #print("Corrected y: ")
+                #print(correctedY)
 
                 
             elif compass <= -120 or compass >= 120:
@@ -817,8 +833,8 @@ class MyRob(CRobLinkAngs):
                 self.currx = correctedX
                 self.xt = correctedX
 
-                print("Corrected x: ")
-                print(correctedX)
+                #print("Corrected x: ")
+                #print(correctedX)
 
                 if self.measures.irSensor[left_id] > 1.1:
 
@@ -834,8 +850,8 @@ class MyRob(CRobLinkAngs):
                     self.curry = correctedY
                     self.yt = correctedY
 
-                    print("(Left) Corrected y: ")
-                    print(correctedY)
+                    #print("(Left) Corrected y: ")
+                    #print(correctedY)
 
                 elif self.measures.irSensor[right_id] > 1.1:
 
@@ -851,8 +867,8 @@ class MyRob(CRobLinkAngs):
                     self.curry = correctedY
                     self.yt = correctedY
 
-                    print("(Right) Corrected y: ")
-                    print(correctedY)
+                    #print("(Right) Corrected y: ")
+                    #print(correctedY)
                     
             elif compass <= -60 and compass >= -120:
                 if self.measures.irSensor[left_id] > 1.1:
@@ -869,8 +885,8 @@ class MyRob(CRobLinkAngs):
                     self.currx = correctedX
                     self.xt = correctedX
 
-                    print("(Left) Corrected x: ")
-                    print(correctedX)
+                    #print("(Left) Corrected x: ")
+                    #print(correctedX)
                 elif self.measures.irSensor[right_id] > 1.1:
 
                     if temp_currx % 2 == 0 : 
@@ -885,8 +901,8 @@ class MyRob(CRobLinkAngs):
                     self.currx = correctedX
                     self.xt = correctedX
 
-                    print("(Right) Corrected x: ")
-                    print(correctedX)
+                    #print("(Right) Corrected x: ")
+                    #print(correctedX)
 
                 if temp_curry % 2 == 0 : 
                     yw = temp_curry - 1
@@ -900,8 +916,8 @@ class MyRob(CRobLinkAngs):
                 self.curry = correctedY
                 self.yt = correctedY
 
-                print("Corrected y: ")
-                print(correctedY)
+                #print("Corrected y: ")
+                #print(correctedY)
 
         #xw = 1 + 2 * self.currx
 
@@ -913,32 +929,52 @@ class MyRob(CRobLinkAngs):
     def wander(self):
         center_id = 0
 
-        print("In state wander")
+        #print("In state wander")
+        """
         x1 = self.measures.x
         y2 = self.measures.y
         
-        print(x1, y2)
-        print(self.initialPos)
+        #print(x1, y2)
+        #print(self.initialPos)
 
         x = math.trunc(x1)
         y = math.trunc(y2)
 
         pos = (x,y)
         posM = (round(x1-self.initialPos[0]),round(y2-self.initialPos[1]))
-        (pos[0]-math.trunc(self.initialPos[0]),pos[1]-math.trunc(self.initialPos[1]))
+        #(pos[0]-math.trunc(self.initialPos[0]),pos[1]-math.trunc(self.initialPos[1]))
         
         threshold = 0.8
         posM_threshold1 = (abs(posM[0]) + threshold, abs(posM[1]) + threshold)
         posM_threshold2 = (abs(posM[0]) - threshold, abs(posM[1]) - threshold)
-        #print(posM_threshold)
-        #print(self.measures.x)
-        #print(self.measures.y)
-        print("ADDING TO VISITED:")
-        print(posM)
-        print("Finished adding")
+        """
+
+        x1 = self.currx
+        y2 = self.curry
+        
+        #print(x1, y2)
+        #print(self.initialPos)
+
+        x = math.trunc(x1)
+        y = math.trunc(y2)
+
+        pos = (x,y)
+        posM = (round(x1-self.initialPos[0]),round(y2-self.initialPos[1]))
+        #(pos[0]-math.trunc(self.initialPos[0]),pos[1]-math.trunc(self.initialPos[1]))
+        
+        threshold = 0.8
+        posM_threshold1 = (abs(posM[0]) + threshold, abs(posM[1]) + threshold)
+        posM_threshold2 = (abs(posM[0]) - threshold, abs(posM[1]) - threshold)
+
+        ##print(posM_threshold)
+        ##print(self.measures.x)
+        ##print(self.measures.y)
+        #print("ADDING TO VISITED:")
+        #print(posM)
+        #print("Finished adding")
         self.visitadas.add((math.trunc(posM[0]),math.trunc(posM[1])))
-        #print(self.livres)
-        #print(self.paredes)
+        ##print(self.livres)
+        ##print(self.paredes)
 
         x1 = abs(posM[0])
         y2 = abs(posM[1])
@@ -946,29 +982,29 @@ class MyRob(CRobLinkAngs):
         compass = self.measures.compass
         
         if posM[0] % 2 == 0 and posM[1] % 2 == 0:
-            print("checking threshold x")
-            print(x1)
-            print(posM_threshold1[0])
-            print(posM_threshold2[0])
+            #print("checking threshold x")
+            #print(x1)
+            #print(posM_threshold1[0])
+            #print(posM_threshold2[0])
             if x1 <= posM_threshold1[0] and x1 >= posM_threshold2[0]:
-                print("checking threshold y")
-                print(y2)
-                print(posM_threshold1[1])
-                print(posM_threshold2[1])
+                #print("checking threshold y")
+                #print(y2)
+                #print(posM_threshold1[1])
+                #print(posM_threshold2[1])
                 if y2 <= posM_threshold1[1] and y2 >= posM_threshold2[1]:
                     
                     if self.measures.ground != -1:
-                        #print("adding beacon")
+                        ##print("adding beacon")
                         self.beacons.add((posM, self.measures.ground))
 
                         if int(self.nBeacons) == len(self.beacons):
-                            #print("\nParedes:" + str(self.paredes) + '\n')
+                            ##print("\nParedes:" + str(self.paredes) + '\n')
 
                             #self.correctPos()
 
 
                             return (False, False)
-                    print("checking nearby")
+                    #print("checking nearby")
                     self.checkNearby(math.trunc(posM[0]),math.trunc(posM[1]),compass)
                     
                     if self.measures.irSensor[center_id] <= 1.5:
@@ -980,7 +1016,7 @@ class MyRob(CRobLinkAngs):
 
                         self.correctPos()
 
-                        print("\nParedes:" + str(self.paredes) + '\n')
+                        #print("\nParedes:" + str(self.paredes) + '\n')
 
                         return (False, False)
                     
@@ -988,7 +1024,7 @@ class MyRob(CRobLinkAngs):
                     self.walk()
                     if self.measures.irSensor[center_id] > 1.5:
                         #self.checkNearby(posM[0],posM[1],compass)
-                        #print("\nParedes:" + str(self.paredes) + '\n')
+                        ##print("\nParedes:" + str(self.paredes) + '\n')
                         #self.correctPos()
 
                         self.driveMotors(0,0)
@@ -1002,7 +1038,7 @@ class MyRob(CRobLinkAngs):
                 if self.measures.irSensor[center_id] > 1.5:
                     #self.checkNearby(posM[0],posM[1],compass)
 
-                    #print("\nParedes:" + str(self.paredes) + '\n')
+                    ##print("\nParedes:" + str(self.paredes) + '\n')
                     #self.correctPos()
 
                     self.driveMotors(0,0)
@@ -1014,7 +1050,7 @@ class MyRob(CRobLinkAngs):
             if self.measures.irSensor[center_id] > 1.6:
                 #self.checkNearby(posM[0],pos[1],compass)
 
-                #print("\nParedes:" + str(self.paredes) + '\n')
+                ##print("\nParedes:" + str(self.paredes) + '\n')
                 #self.correctPos()
 
 
@@ -1086,7 +1122,7 @@ class MyRob(CRobLinkAngs):
         with open(outfile, 'w') as f:
             for i in path:
                 if i[0] % 2 == 0 and i[1] % 2 == 0:
-                    #print(i)
+                    ##print(i)
                     for s in self.beacons:
                         if s[0] == i and s[1] != 0:
                             f.write(str(i[0]) + " " + str(i[1])  + " #" + str(s[1])  + '\n')
@@ -1098,10 +1134,10 @@ class MyRob(CRobLinkAngs):
             f.close()
         
     def final_path(self):
-        #print("Visited cells: ")
-        #print(self.visitadas)
-        #print("\nParedes: ")
-        #print(self.paredes)
+        ##print("Visited cells: ")
+        ##print(self.visitadas)
+        ##print("\nParedes: ")
+        ##print(self.paredes)
 
         pos = (0,0)
         fullPath = [(0, 0)]
@@ -1113,12 +1149,12 @@ class MyRob(CRobLinkAngs):
         start = pos
         beac.remove(pos)
 
-        #print(beac)
+        ##print(beac)
 
         for b in beac:
 
-            #print("\nStart")
-            #print(start)
+            ##print("\nStart")
+            ##print(start)
 
             g = b
             #self.nearestBeacon(start, beac)
@@ -1127,12 +1163,12 @@ class MyRob(CRobLinkAngs):
             problema = SearchProblem(p,s,g)
             tree = SearchTree(problema)
 
-            #print("Finish")
-            #print(g)
+            ##print("Finish")
+            ##print(g)
 
             path = tree.search()
-            #print("Solution: ")
-            #print(path)
+            ##print("Solution: ")
+            ##print(path)
             #beac.remove(g)
 
             fullPath.extend(path[1:])
@@ -1145,26 +1181,26 @@ class MyRob(CRobLinkAngs):
         problema = SearchProblem(p,s,g)
         tree = SearchTree(problema)
 
-        #print("\nStart")
-        #print(start)
-        #print("Finish")
-        #print(g)
+        ##print("\nStart")
+        ##print(start)
+        ##print("Finish")
+        ##print(g)
 
         path = tree.search()
-        #print("Solution: ")
-        #print(path)
+        ##print("Solution: ")
+        ##print(path)
 
         fullPath.extend(path[1:])
         
-        #print("Full path: ")
-        #print(fullPath)
+        ##print("Full path: ")
+        ##print(fullPath)
 
         state = 'goTo'
 
         self.path_to_file(fullPath)
         
 
-        #print("END")
+        ##print("END")
 
     def drawMap(self):
         for i in self.livres:
@@ -1184,7 +1220,7 @@ class MyRob(CRobLinkAngs):
 
         self.mapArray[13][27] = 'I'
 
-        with open('mapping.out', 'w') as f:
+        with open('mapping.map', 'w') as f:
             for i in range(27):
                 for j in range(55):
                     f.write(self.mapArray[i][j])
@@ -1219,11 +1255,11 @@ class Map():
            i=i+1
 
 
-rob_name = "mainC3"
+rob_name = "mainC4"
 host = "localhost"
 pos = 1
 mapc = None
-outfile = "pathC3.out"
+outfile = "pathC4.path"
 
 for i in range(1, len(sys.argv),2):
     if (sys.argv[i] == "--host" or sys.argv[i] == "-h") and i != len(sys.argv) - 1:
@@ -1237,7 +1273,7 @@ for i in range(1, len(sys.argv),2):
     elif (sys.argv[i] == "--map" or sys.argv[i] == "-m") and i != len(sys.argv) - 1:
         mapc = Map(sys.argv[i + 1])
     else:
-        print("Unkown argument", sys.argv[i])
+        #print("Unkown argument", sys.argv[i])
         quit()
 
 if __name__ == '__main__':
