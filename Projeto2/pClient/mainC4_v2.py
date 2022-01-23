@@ -93,10 +93,10 @@ class MyRob(CRobLinkAngs):
         ##print("hello\n")
         while True:
             self.readSensors()
-            print("\n" + str(self.measures.time) + "\n")
+            #print("\n" + str(self.measures.time) + "\n")
             self.lastTick = self.measures.time
             if self.measures.endLed:
-                print(self.rob_name + " exiting")
+                #print(self.rob_name + " exiting")
                 quit()
 
             if self.measures.time == 4990:
@@ -180,7 +180,7 @@ class MyRob(CRobLinkAngs):
                     #currPos = (math.trunc(self.measures.x),math.trunc(self.measures.y))
                     #currPos = (currPos[0]-math.trunc(self.initialPos[0]),currPos[1]-math.trunc(self.initialPos[1]))
                     
-                    print("ENTERING STATE goto")
+                    #print("ENTERING STATE goto")
                     
                     #currPos = (self.measures.x, self.measures.y)
                     #currPos = (round(currPos[0]-self.initialPos[0]),round(currPos[1]-self.initialPos[1]))
@@ -189,7 +189,7 @@ class MyRob(CRobLinkAngs):
                     #currPos = (round(currPos[0]-self.initialPos[0]),round(currPos[1]-self.initialPos[1]))
                     
                     if len(path) > 1:
-                        print("still more path")
+                        #print("still more path")
                         if self.measures.irSensor[0] > 1.1:
                             self.correctPos()
                             self.driveMotors(0,0)
@@ -200,13 +200,13 @@ class MyRob(CRobLinkAngs):
                             #self.calcPos(self.previous_l,self.previous_r)
                         state = self.goTo(path[0],path[1])
                     elif currPos == path[0]:
-                        print("in position")
+                        #print("in position")
                         self.calcPos(self.previous_l,self.previous_r)
                         ##print("Done Walking!")
                         if self.finishing:
                             self.driveMotors(0,0)
                             
-                            print("All done, quitting.")
+                            #print("All done, quitting.")
                                                         
                             self.finish()
                             """
@@ -313,7 +313,7 @@ class MyRob(CRobLinkAngs):
                         self.calcPos(l,r)
 
                 elif state=='walk':
-                    print("ENTERING STATE WALK")
+                    #print("ENTERING STATE WALK")
 
                     #print(self.initialPos)
                     #currPos = (self.measures.x, self.measures.y)
@@ -324,10 +324,10 @@ class MyRob(CRobLinkAngs):
                     threshold = 0.2
                     path_threshold1 = (abs(path[0][0]) + threshold, abs(path[0][1]) + threshold)
                     path_threshold2 = (abs(path[0][0]) - threshold, abs(path[0][1]) - threshold)
-                    print(tempPos)
-                    print(path[0])
-                    print(path_threshold1)
-                    print(path_threshold2)
+                    #print(tempPos)
+                    #print(path[0])
+                    #print(path_threshold1)
+                    #print(path_threshold2)
                     x1 = abs(tempPos[0])
                     y2 = abs(tempPos[1])
 
@@ -443,7 +443,7 @@ class MyRob(CRobLinkAngs):
                     f =True
 
             else:
-                print('Stop! \n Lets start A*\n')
+                #print('Stop! \n Lets start A*\n')
                 self.drawMap()
 
                 ##print("Visited cells: ")
@@ -768,16 +768,16 @@ class MyRob(CRobLinkAngs):
 
         self.teta = t
 
-        print("##############################################################\n")
+        #print("##############################################################\n")
 
         x2 = self.measures.x
         y2 = self.measures.y
         
 
-        print("Motor strength: "+ str((l,r)))
-        print("New pos: " + str((x,y,t)))
+        #print("Motor strength: "+ str((l,r)))
+        #print("New pos: " + str((x,y,t)))
         #print("Current pos: " + str((x2-round(self.fpx),y2-round(self.fpy),self.measures.compass)))
-        print("GPS pos: " + str((x2-self.testing[0],y2-self.testing[1],self.measures.compass)))
+        #print("GPS pos: " + str((x2-self.testing[0],y2-self.testing[1],self.measures.compass)))
 
         #dfx = (x2-self.initialPos[0])
         #dfy = (y2-self.initialPos[1])
@@ -792,7 +792,7 @@ class MyRob(CRobLinkAngs):
         #self.allRx.append(x2-self.fpx)
         #self.allRy.append(y2-self.fpy)
 
-        print("\n##############################################################")
+        #print("\n##############################################################")
 
 
         self.currx = x
@@ -809,7 +809,7 @@ class MyRob(CRobLinkAngs):
         back_id = 3
         compass = self.measures.compass
 
-        print("Correcting in pos: " + str((self.currx, self.curry)))
+        #print("Correcting in pos: " + str((self.currx, self.curry)))
         
         
         if self.measures.irSensor[center_id] > 1.1:
@@ -1186,8 +1186,12 @@ class MyRob(CRobLinkAngs):
     
 
     def path_to_file(self, path):
+        #print("FINAL PATH TO FILE")
         flag = False
-        with open(outfile, 'w') as f:
+
+        tempfile = outfile + '.path'
+
+        with open(tempfile, 'w') as f:
             for i in path:
                 if i[0] % 2 == 0 and i[1] % 2 == 0:
                     ##print(i)
@@ -1206,6 +1210,7 @@ class MyRob(CRobLinkAngs):
         ##print(self.visitadas)
         ##print("\nParedes: ")
         ##print(self.paredes)
+        #print("FINAL PATH")
 
         pos = (0,0)
         fullPath = [(0, 0)]
@@ -1271,15 +1276,6 @@ class MyRob(CRobLinkAngs):
         ##print("END")
 
     def drawMap(self):
-        print("Drawing")
-        print("livres")
-        print(self.livres)
-        print("visitadas")
-        print(self.visitadas)
-        print("beacons")
-        print(self.beacons)
-        print("paredes")
-        print(self.paredes)
         for i in self.livres:
             self.mapArray[13 - i[1]][27 + i[0]] = 'O'
 
@@ -1300,7 +1296,8 @@ class MyRob(CRobLinkAngs):
 
         self.mapArray[13][27] = '0'
 
-        with open('mapping.map', 'w') as f:
+        tempfile = outfile + '.map'
+        with open(tempfile, 'w') as f:
             for i in range(27):
                 for j in range(55):
                     f.write(self.mapArray[i][j])
@@ -1339,7 +1336,7 @@ rob_name = "mainC4"
 host = "localhost"
 pos = 1
 mapc = None
-outfile = "pathC4.path"
+outfile = "challenge4"
 
 for i in range(1, len(sys.argv),2):
     if (sys.argv[i] == "--host" or sys.argv[i] == "-h") and i != len(sys.argv) - 1:
