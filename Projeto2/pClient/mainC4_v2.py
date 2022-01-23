@@ -678,16 +678,16 @@ class MyRob(CRobLinkAngs):
 
         print("##############################################################\n")
 
-        x2 = self.measures.x
-        y2 = self.measures.y
-        newx = x
-        newy = y
-        print("Motor strength: "+ str((l,r)))
-        print("New pos: " + str((newx,newy,t)))
-        print("Current pos: " + str((x2,y2,self.measures.compass)))
+        #x2 = self.measures.x
+        #y2 = self.measures.y
+        
 
-        dfx = (x2-self.initialPos[0]) - newx
-        dfy = (y2-self.initialPos[1]) - newy
+        print("Motor strength: "+ str((l,r)))
+        print("New pos: " + str((x,y,t)))
+        #print("Current pos: " + str((x2,y2,self.measures.compass)))
+
+        #dfx = (x2-self.initialPos[0]) - newx
+        #dfy = (y2-self.initialPos[1]) - newy
 
         # plot values
         #self.diffx.append(dfx)
@@ -696,8 +696,8 @@ class MyRob(CRobLinkAngs):
         print("\n##############################################################")
 
 
-        self.currx = newx
-        self.curry = newy
+        self.currx = x
+        self.curry = y
 
         self.previous_l = l
         self.previous_r = r
@@ -713,19 +713,18 @@ class MyRob(CRobLinkAngs):
         print("SHOULD BE CORRECTING")
         if self.measures.irSensor[center_id] > 1.1:
 
-            temp_currx = math.trunc(self.currx)
-            temp_curry = math.trunc(self.curry)
+            temp_currx = round(self.currx)
+            temp_curry = round(self.curry)
 
             if compass <= 30 and compass >= -30:
                 if temp_currx % 2 == 0 : 
                     xw = temp_currx + 1
-                else:
-                    xw = temp_currx + 2
+                
                 #print("Wall is at: ")
                 #print(xw)
-                correctedX = xw - 0.1 - 1/self.measures.irSensor[center_id] - 0.5
-                self.currx = correctedX
-                self.xt = correctedX
+                    correctedX = xw - 0.1 - 1/self.measures.irSensor[center_id] - 0.5
+                    self.currx = correctedX
+                    self.xt = correctedX
 
                 #print("Corrected x: ")
                 #print(correctedX)
@@ -734,15 +733,12 @@ class MyRob(CRobLinkAngs):
                 if self.measures.irSensor[left_id] > 1.1:
                     if temp_curry % 2 == 0 : 
                         yw = temp_curry + 1
-                    else:
-                        if temp_curry > 0:
-                            yw = temp_curry + 2
-                        else:
-                            yw = temp_curry
+
+                        correctedY = yw - 0.1 - 1/self.measures.irSensor[left_id] - 0.5
+                        self.curry = correctedY
+                        self.yt = correctedY
                     #yw = temp_curry + 1
-                    correctedY = yw - 0.1 - 1/self.measures.irSensor[left_id] - 0.5
-                    self.curry = correctedY
-                    self.yt = correctedY
+                    
 
                     #print("(Left) Corrected y: ")
                     #print(correctedY)
@@ -750,70 +746,53 @@ class MyRob(CRobLinkAngs):
                 elif self.measures.irSensor[right_id] > 1.1:
                     if temp_curry % 2 == 0 : 
                         yw = temp_curry - 1
-                    else:
-                        if temp_curry > 0:
-                            yw = temp_curry
-                        else:
-                            yw = temp_curry -2
+
+                        correctedY = yw + 0.1 + 1/self.measures.irSensor[right_id] + 0.5
+                        self.curry = correctedY
+                        self.yt = correctedY
                     #yw = temp_curry - 1
-                    correctedY = yw + 0.1 + 1/self.measures.irSensor[right_id] + 0.5
-                    self.curry = correctedY
-                    self.yt = correctedY
+                    
 
                     #print("(Right) Corrected y: ")
                     #print(correctedY)
 
 
             elif compass <= 120 and compass >= 60:
+
+                if temp_curry % 2 == 0 : 
+                    yw = temp_curry + 1
+                
+
+                    correctedY = yw - 0.1 - 1/self.measures.irSensor[center_id] - 0.5
+                    self.curry = correctedY
+                    self.yt = correctedY
+
                 if self.measures.irSensor[left_id] > 1.1:
-                    #print("correcting!!!!!!!!!!!!!!!")
 
                     if temp_currx % 2 == 0 : 
                         xw = temp_currx - 1
-                    else:
-                        if temp_currx > 0:
-                            xw = temp_currx
-                        else:
-                            xw = temp_currx - 2
+                    
 
-                    #print(xw)
-                    correctedX = xw + 0.1 + 1/self.measures.irSensor[left_id] + 0.5
-                    #print(correctedX)
-                    #print(self.currx)
-                    #print(self.xt)
-                    self.currx = correctedX
-                    self.xt = correctedX
-
+                        correctedX = xw + 0.1 + 1/self.measures.irSensor[left_id] + 0.5
+                        self.currx = correctedX
+                        self.xt = correctedX
+                    
                     #print("(Left) Corrected x: ")
                     #print(correctedX)
                 elif self.measures.irSensor[right_id] > 1.1:
 
                     if temp_currx % 2 == 0 : 
                         xw = temp_currx + 1
-                    else:
-                        if temp_currx > 0:
-                            xw = temp_currx + 2
-                        else:
-                            xw = temp_currx
-
-                    correctedX = xw - 0.1 - 1/self.measures.irSensor[right_id] - 0.5
-                    self.currx = correctedX
-                    self.xt = correctedX
+                    
+                        
+                        correctedX = xw - 0.1 - 1/self.measures.irSensor[right_id] - 0.5
+                        self.currx = correctedX
+                        self.xt = correctedX
 
                     #print("(Right) Corrected x: ")
                     #print(correctedX)
 
-                if temp_curry % 2 == 0 : 
-                    yw = temp_curry + 1
-                else:
-                    if temp_curry > 0:
-                        yw = temp_curry + 2
-                    else:
-                        yw = temp_curry 
-
-                correctedY = yw - 0.1 - 1/self.measures.irSensor[center_id] - 0.5
-                self.curry = correctedY
-                self.yt = correctedY
+                
 
                 #print("Corrected y: ")
                 #print(correctedY)
@@ -823,15 +802,11 @@ class MyRob(CRobLinkAngs):
 
                 if temp_currx % 2 == 0 : 
                     xw = temp_currx - 1
-                else:
-                    if temp_currx > 0:
-                        xw = temp_currx
-                    else:
-                        xw = temp_currx - 2
+                
 
-                correctedX = xw + 0.1 + 1/self.measures.irSensor[center_id] + 0.5
-                self.currx = correctedX
-                self.xt = correctedX
+                    correctedX = xw + 0.1 + 1/self.measures.irSensor[center_id] + 0.5
+                    self.currx = correctedX
+                    self.xt = correctedX
 
                 #print("Corrected x: ")
                 #print(correctedX)
@@ -840,15 +815,11 @@ class MyRob(CRobLinkAngs):
 
                     if temp_curry % 2 == 0 : 
                         yw = temp_curry - 1
-                    else:
-                        if temp_curry > 0:
-                            yw = temp_curry
-                        else:
-                            yw = temp_curry - 2
+                    
 
-                    correctedY = yw + 0.1 + 1/self.measures.irSensor[left_id] + 0.5
-                    self.curry = correctedY
-                    self.yt = correctedY
+                        correctedY = yw + 0.1 + 1/self.measures.irSensor[left_id] + 0.5
+                        self.curry = correctedY
+                        self.yt = correctedY
 
                     #print("(Left) Corrected y: ")
                     #print(correctedY)
@@ -857,64 +828,48 @@ class MyRob(CRobLinkAngs):
 
                     if temp_curry % 2 == 0 : 
                         yw = temp_curry + 1
-                    else:
-                        if temp_curry > 0:
-                            yw = temp_curry + 2
-                        else:
-                            yw = temp_curry
+                    
 
-                    correctedY = yw - 0.1 - 1/self.measures.irSensor[right_id] - 0.5
-                    self.curry = correctedY
-                    self.yt = correctedY
+                        correctedY = yw - 0.1 - 1/self.measures.irSensor[right_id] - 0.5
+                        self.curry = correctedY
+                        self.yt = correctedY
 
                     #print("(Right) Corrected y: ")
                     #print(correctedY)
                     
             elif compass <= -60 and compass >= -120:
+                if temp_curry % 2 == 0 : 
+                    yw = temp_curry - 1
+                
+
+                    correctedY = yw + 0.1 + 1/self.measures.irSensor[center_id] + 0.5
+                    self.curry = correctedY
+                    self.yt = correctedY
+
                 if self.measures.irSensor[left_id] > 1.1:
-                    
+
                     if temp_currx % 2 == 0 : 
                         xw = temp_currx + 1
-                    else:
-                        if temp_currx > 0:
-                            xw = temp_currx + 2
-                        else:
-                            xw = temp_currx
+                    
 
-                    correctedX = xw - 0.1 - 1/self.measures.irSensor[left_id] - 0.5
-                    self.currx = correctedX
-                    self.xt = correctedX
-
+                        correctedX = xw - 0.1 - 1/self.measures.irSensor[left_id] - 0.5
+                        self.currx = correctedX
+                        self.xt = correctedX
+                    
                     #print("(Left) Corrected x: ")
                     #print(correctedX)
                 elif self.measures.irSensor[right_id] > 1.1:
 
                     if temp_currx % 2 == 0 : 
                         xw = temp_currx - 1
-                    else:
-                        if temp_currx > 0:
-                            xw = temp_currx
-                        else:
-                            xw = temp_currx - 2
+                    
                         
-                    correctedX = xw + 0.1 + 1/self.measures.irSensor[right_id] + 0.5
-                    self.currx = correctedX
-                    self.xt = correctedX
+                        correctedX = xw + 0.1 + 1/self.measures.irSensor[right_id] + 0.5
+                        self.currx = correctedX
+                        self.xt = correctedX
 
                     #print("(Right) Corrected x: ")
                     #print(correctedX)
-
-                if temp_curry % 2 == 0 : 
-                    yw = temp_curry - 1
-                else:
-                    if temp_curry > 0:
-                        yw = temp_curry
-                    else:
-                        yw = temp_curry - 2
-
-                correctedY = yw + 0.1 + 1/self.measures.irSensor[center_id] + 0.5
-                self.curry = correctedY
-                self.yt = correctedY
 
                 #print("Corrected y: ")
                 #print(correctedY)
@@ -955,8 +910,10 @@ class MyRob(CRobLinkAngs):
         #print(x1, y2)
         #print(self.initialPos)
 
-        x = math.trunc(x1)
-        y = math.trunc(y2)
+        print("wander x: " + str(x1) + "\nwander y: " + str(y2))
+
+        x = round(x1)
+        y = round(y2)
 
         pos = (x,y)
         posM = (round(x1-self.initialPos[0]),round(y2-self.initialPos[1]))
@@ -972,7 +929,7 @@ class MyRob(CRobLinkAngs):
         #print("ADDING TO VISITED:")
         #print(posM)
         #print("Finished adding")
-        self.visitadas.add((math.trunc(posM[0]),math.trunc(posM[1])))
+        self.visitadas.add((round(posM[0]),round(posM[1])))
         ##print(self.livres)
         ##print(self.paredes)
 
@@ -1005,7 +962,7 @@ class MyRob(CRobLinkAngs):
 
                             return (False, False)
                     #print("checking nearby")
-                    self.checkNearby(math.trunc(posM[0]),math.trunc(posM[1]),compass)
+                    self.checkNearby(round(posM[0]),round(posM[1]),compass)
                     
                     if self.measures.irSensor[center_id] <= 1.5:
                         self.walk()
@@ -1273,7 +1230,7 @@ for i in range(1, len(sys.argv),2):
     elif (sys.argv[i] == "--map" or sys.argv[i] == "-m") and i != len(sys.argv) - 1:
         mapc = Map(sys.argv[i + 1])
     else:
-        #print("Unkown argument", sys.argv[i])
+        print("Unkown argument", sys.argv[i])
         quit()
 
 if __name__ == '__main__':
