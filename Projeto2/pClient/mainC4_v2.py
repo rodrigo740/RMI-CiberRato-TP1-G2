@@ -40,6 +40,12 @@ class MyRob(CRobLinkAngs):
     diffx = []
     diffy = []
 
+    allCalcx = []
+    allCalcy = []
+
+    allRx = []
+    allRy = []
+
     lastTick = 0
 
     finishing = False
@@ -79,23 +85,61 @@ class MyRob(CRobLinkAngs):
         self.fpx = self.measures.x
         self.fpy = self.measures.y
 
+        #self.allRx.append(self.fpx)
+        #self.allRy.append(self.fpy)
+
         #print("Initial pos: " + str(self.initialPos))
 
         ##print("hello\n")
         while True:
             self.readSensors()
-            print("\n" + str(self.measures.time) + "\n")
+            #print("\n" + str(self.measures.time) + "\n")
             self.lastTick = self.measures.time
             if self.measures.endLed:
                 print(self.rob_name + " exiting")
                 quit()
 
             if self.measures.time == 4990:
+                """
+                yvals = []
+                #print(self.lastTick)
+
+                yvals.append(0)
+                self.diffx.append(0 - self.allRx[0])
+                self.diffy.append(0 - self.allRy[0])
+
+                
+                for i in range(1,len(self.allRx)):
+                    yvals.append(i)
+                    self.diffx.append(self.allCalcx[i] - self.allRx[i])
+                    self.diffy.append(self.allCalcy[i] - self.allRy[i])
+
+                #print("amount of ticks: " + str(len(yvals)))
+                #print("amount of diffx: " + str(len(self.diffx)))
+                #print("amount of diffy: " + str(len(self.diffy)))
+                
+                plt.plot(self.diffx, yvals, label = "diff x")
+                plt.plot(self.diffy, yvals, label = "diff y")
+
+                # naming the x axis
+                plt.xlabel('x - axis')
+                # naming the y axis
+                plt.ylabel('y - axis')
+                # giving a title to my graph
+                plt.title('Two lines on same graph!')
+                
+                # show a legend on the plot
+                plt.legend()
+                
+                # function to show the plot
+                plt.show()
+                """
+
                 self.drawMap()
                 self.final_path()
             
             if f:
-                print("Inside F")
+                #print("Inside F")
 
                 if state == 'stop' and self.measures.start:
                     state = stopped_state
@@ -632,7 +676,6 @@ class MyRob(CRobLinkAngs):
 
         self.calcPos(l,r)
 
-        noise = np.random.normal(1,1.5*1.5,1)
         
 
 
@@ -678,20 +721,26 @@ class MyRob(CRobLinkAngs):
 
         print("##############################################################\n")
 
-        #x2 = self.measures.x
-        #y2 = self.measures.y
+        x2 = self.measures.x
+        y2 = self.measures.y
         
 
         print("Motor strength: "+ str((l,r)))
         print("New pos: " + str((x,y,t)))
-        #print("Current pos: " + str((x2,y2,self.measures.compass)))
+        print("Current pos: " + str((x2-round(self.fpx),y2-round(self.fpy),self.measures.compass)))
 
-        #dfx = (x2-self.initialPos[0]) - newx
-        #dfy = (y2-self.initialPos[1]) - newy
+        #dfx = (x2-self.initialPos[0])
+        #dfy = (y2-self.initialPos[1])
 
         # plot values
         #self.diffx.append(dfx)
         #self.diffy.append(dfy)
+
+        #self.allCalcx.append(x)
+        #self.allCalcy.append(y)
+
+        #self.allRx.append(x2-self.fpx)
+        #self.allRy.append(y2-self.fpy)
 
         print("\n##############################################################")
 
@@ -709,8 +758,10 @@ class MyRob(CRobLinkAngs):
         right_id = 2
         back_id = 3
         compass = self.measures.compass
+
+        print("Correcting in pos: " + str((self.currx, self.curry)))
         
-        print("SHOULD BE CORRECTING")
+        
         if self.measures.irSensor[center_id] > 1.1:
 
             temp_currx = round(self.currx)
@@ -731,7 +782,7 @@ class MyRob(CRobLinkAngs):
 
 
                 if self.measures.irSensor[left_id] > 1.1:
-                    if temp_curry % 2 == 0 : 
+                    if temp_currx % 2 == 0 : 
                         yw = temp_curry + 1
 
                         correctedY = yw - 0.1 - 1/self.measures.irSensor[left_id] - 0.5
@@ -744,7 +795,7 @@ class MyRob(CRobLinkAngs):
                     #print(correctedY)
 
                 elif self.measures.irSensor[right_id] > 1.1:
-                    if temp_curry % 2 == 0 : 
+                    if temp_currx % 2 == 0 : 
                         yw = temp_curry - 1
 
                         correctedY = yw + 0.1 + 1/self.measures.irSensor[right_id] + 0.5
@@ -759,7 +810,7 @@ class MyRob(CRobLinkAngs):
 
             elif compass <= 120 and compass >= 60:
 
-                if temp_curry % 2 == 0 : 
+                if temp_currx % 2 == 0 : 
                     yw = temp_curry + 1
                 
 
@@ -813,7 +864,7 @@ class MyRob(CRobLinkAngs):
 
                 if self.measures.irSensor[left_id] > 1.1:
 
-                    if temp_curry % 2 == 0 : 
+                    if temp_currx % 2 == 0 : 
                         yw = temp_curry - 1
                     
 
@@ -826,7 +877,7 @@ class MyRob(CRobLinkAngs):
 
                 elif self.measures.irSensor[right_id] > 1.1:
 
-                    if temp_curry % 2 == 0 : 
+                    if temp_currx % 2 == 0 : 
                         yw = temp_curry + 1
                     
 
@@ -838,7 +889,7 @@ class MyRob(CRobLinkAngs):
                     #print(correctedY)
                     
             elif compass <= -60 and compass >= -120:
-                if temp_curry % 2 == 0 : 
+                if temp_currx % 2 == 0 : 
                     yw = temp_curry - 1
                 
 
@@ -910,7 +961,7 @@ class MyRob(CRobLinkAngs):
         #print(x1, y2)
         #print(self.initialPos)
 
-        print("wander x: " + str(x1) + "\nwander y: " + str(y2))
+        #print("wander x: " + str(x1) + "\nwander y: " + str(y2))
 
         x = round(x1)
         y = round(y2)
@@ -919,7 +970,7 @@ class MyRob(CRobLinkAngs):
         posM = (round(x1-self.initialPos[0]),round(y2-self.initialPos[1]))
         #(pos[0]-math.trunc(self.initialPos[0]),pos[1]-math.trunc(self.initialPos[1]))
         
-        threshold = 0.8
+        threshold = 0.7
         posM_threshold1 = (abs(posM[0]) + threshold, abs(posM[1]) + threshold)
         posM_threshold2 = (abs(posM[0]) - threshold, abs(posM[1]) - threshold)
 
@@ -970,6 +1021,7 @@ class MyRob(CRobLinkAngs):
                     else:
                 
                         self.driveMotors(0, 0)
+                        self.calcPos(0,0)
 
                         self.correctPos()
 
@@ -978,20 +1030,22 @@ class MyRob(CRobLinkAngs):
                         return (False, False)
                     
                 else:
-                    self.walk()
                     if self.measures.irSensor[center_id] > 1.5:
                         #self.checkNearby(posM[0],posM[1],compass)
                         ##print("\nParedes:" + str(self.paredes) + '\n')
                         #self.correctPos()
 
                         self.driveMotors(0,0)
-                        return (False, False)
+                        self.calcPos(0,0)
+                        self.correctPos()
 
+                        return (False, False)
+                    self.walk()
+                    
                     return (True, False)
                 
 
             else:
-                self.walk()
                 if self.measures.irSensor[center_id] > 1.5:
                     #self.checkNearby(posM[0],posM[1],compass)
 
@@ -999,7 +1053,11 @@ class MyRob(CRobLinkAngs):
                     #self.correctPos()
 
                     self.driveMotors(0,0)
+                    self.calcPos(0,0)
+                    #self.correctPos()
+
                     return (False, False)
+                self.walk()
 
                 return (True, False)
             
@@ -1012,6 +1070,9 @@ class MyRob(CRobLinkAngs):
 
 
                 self.driveMotors(0,0)
+                self.calcPos(0,0)
+                #self.correctPos()
+
                 return (False, False)
             self.walk()
             return (True, False)
@@ -1165,6 +1226,9 @@ class MyRob(CRobLinkAngs):
 
         for i in self.visitadas:
             self.mapArray[13 - i[1]][27 + i[0]] = 'X'
+
+        for i in self.beacons:
+            self.mapArray[13 - i[0][1]][27 + i[0][0]] = str(i[1])
         
         for i in self.paredes:
 
@@ -1175,7 +1239,7 @@ class MyRob(CRobLinkAngs):
                 if i[0] % 2 == 0:
                     self.mapArray[13 - i[1]][27 + i[0]] = '-'
 
-        self.mapArray[13][27] = 'I'
+        self.mapArray[13][27] = '0'
 
         with open('mapping.map', 'w') as f:
             for i in range(27):
@@ -1242,5 +1306,6 @@ if __name__ == '__main__':
     try:
         rob.run()
     except Exception as e:
+        
         rob.drawMap()
         rob.final_path()

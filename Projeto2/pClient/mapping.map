@@ -11,12 +11,12 @@
                                  - - - - - - - - - -   
                                 |XXXXXXXXX|XXXXXXXXX|  
                          - - O - X - - - X X - - - X   
-                        |XXIXXXXXX|     |X|XXXO   OX|  
-                         X - - - X       X - X -   X   
-                        |XXX|XXX|XO     |XXX|XXX| OX|  
-                         - X X - X       - X - X   X   
-                          |X|XXXXX|       |XXXXX| OX|  
-                         - X - - -   -     - O O   X   
+                        |XX0XXXXXX|XXXXX|X|XXXXXXXXX|  
+                         X - - - X X - - X - X - - X   
+                        |XXX|XXX|XXX|   |XXX|XXX|3XX|  
+                         - X X - X -     - X - X - X   
+                          |X|XXXXX|       |XXXXX|XXX|  
+                         - X - - -   -     - O O - X   
                         |XXX|       |X|           OX|  
                          X -   - - - X             X   
                         |X|   |XXXXXXX|           OX|  
