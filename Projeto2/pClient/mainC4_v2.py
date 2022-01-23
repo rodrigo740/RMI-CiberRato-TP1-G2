@@ -79,7 +79,7 @@ class MyRob(CRobLinkAngs):
 
         #self.initialPos = (math.trunc(self.measures.x),math.trunc(self.measures.y))
 
-        #self.initialPos = (self.measures.x,self.measures.y)
+        self.testing = (self.measures.x,self.measures.y)
         self.initialPos = (0,0)
 
         self.fpx = self.measures.x
@@ -93,7 +93,7 @@ class MyRob(CRobLinkAngs):
         ##print("hello\n")
         while True:
             self.readSensors()
-            #print("\n" + str(self.measures.time) + "\n")
+            print("\n" + str(self.measures.time) + "\n")
             self.lastTick = self.measures.time
             if self.measures.endLed:
                 print(self.rob_name + " exiting")
@@ -189,12 +189,18 @@ class MyRob(CRobLinkAngs):
                     #currPos = (round(currPos[0]-self.initialPos[0]),round(currPos[1]-self.initialPos[1]))
                     
                     if len(path) > 1:
+                        print("still more path")
                         if self.measures.irSensor[0] > 1.1:
                             self.correctPos()
+                            self.driveMotors(0,0)
+                            self.calcPos(0,0)
                         else:
-                            self.calcPos(self.previous_l,self.previous_r)
+                            self.driveMotors(0,0)
+                            self.calcPos(0,0)
+                            #self.calcPos(self.previous_l,self.previous_r)
                         state = self.goTo(path[0],path[1])
                     elif currPos == path[0]:
+                        print("in position")
                         self.calcPos(self.previous_l,self.previous_r)
                         ##print("Done Walking!")
                         if self.finishing:
@@ -307,20 +313,63 @@ class MyRob(CRobLinkAngs):
                         self.calcPos(l,r)
 
                 elif state=='walk':
-                    #print("ENTERING STATE WALK")
+                    print("ENTERING STATE WALK")
 
                     #print(self.initialPos)
                     #currPos = (self.measures.x, self.measures.y)
                     ##print(currPos)
                     #currPos = (round(currPos[0]-self.initialPos[0]),round(currPos[1]-self.initialPos[1]))
+                    tempPos = self.currx, self.curry
+                    
+                    threshold = 0.2
+                    path_threshold1 = (abs(path[0][0]) + threshold, abs(path[0][1]) + threshold)
+                    path_threshold2 = (abs(path[0][0]) - threshold, abs(path[0][1]) - threshold)
+                    print(tempPos)
+                    print(path[0])
+                    print(path_threshold1)
+                    print(path_threshold2)
+                    x1 = abs(tempPos[0])
+                    y2 = abs(tempPos[1])
+
                     currPos = (round(self.currx), round(self.curry))
                     #print("position in walk is:")
                     #print(currPos)
                     if currPos != path[0]:
                         self.walk()
                     else:
-                        self.calcPos(self.previous_l,self.previous_r)
-                        state='goTo'
+                        compass = self.measures.compass
+                        
+                        if compass <= 45 and compass >= -45:
+                            if x1 <= path_threshold1[0] and x1 >= path_threshold2[0]:
+                                self.calcPos(self.previous_l,self.previous_r)
+                                state='goTo'
+                            else:
+                                self.walk() 
+
+                        elif compass <= 135 and compass > 45:
+                            if y2 <= path_threshold1[1] and y2 >= path_threshold2[1]:
+                                self.calcPos(self.previous_l,self.previous_r)
+                                state='goTo'
+                            else:
+                                self.walk() 
+
+                        elif compass < -135 or compass > 135:
+                            if x1 <= path_threshold1[0] and x1 >= path_threshold2[0]:
+                                self.calcPos(self.previous_l,self.previous_r)
+                                state='goTo'
+                            else:
+                                self.walk() 
+
+                        elif compass >= -135 and compass < -45:
+                            if y2 <= path_threshold1[1] and y2 >= path_threshold2[1]:
+                                self.calcPos(self.previous_l,self.previous_r)
+                                state='goTo'
+                            else:
+                                self.walk() 
+                                
+                        else:
+                            self.calcPos(self.previous_l,self.previous_r)
+                            state='goTo'
                 elif state=='search_path':
 
                     ##print("Visited cells: ")
@@ -640,7 +689,7 @@ class MyRob(CRobLinkAngs):
             angleGoal = -90
         
         if angleGoal == 180:
-            if (compass > -177 and compass <= 0) or (compass < 177 and compass > 0):
+            if (compass > -175 and compass <= 0) or (compass < 175 and compass > 0):
                 (l,r) = self.rotation(180)
             else: 
                 if self.measures.irSensor[left_id] > 2:
@@ -655,7 +704,7 @@ class MyRob(CRobLinkAngs):
                     l = r = 0.15
                     #self.driveMotors(0.15,0.15)
         else:
-            if compass > angleGoal + 3 or compass < angleGoal - 3:
+            if compass > angleGoal + 5 or compass < angleGoal - 5:
                 (l,r) = self.rotation(angleGoal)
             else: 
                 if self.measures.irSensor[left_id] > 2:
@@ -727,7 +776,8 @@ class MyRob(CRobLinkAngs):
 
         print("Motor strength: "+ str((l,r)))
         print("New pos: " + str((x,y,t)))
-        print("Current pos: " + str((x2-round(self.fpx),y2-round(self.fpy),self.measures.compass)))
+        #print("Current pos: " + str((x2-round(self.fpx),y2-round(self.fpy),self.measures.compass)))
+        print("GPS pos: " + str((x2-self.testing[0],y2-self.testing[1],self.measures.compass)))
 
         #dfx = (x2-self.initialPos[0])
         #dfy = (y2-self.initialPos[1])
@@ -1221,6 +1271,15 @@ class MyRob(CRobLinkAngs):
         ##print("END")
 
     def drawMap(self):
+        print("Drawing")
+        print("livres")
+        print(self.livres)
+        print("visitadas")
+        print(self.visitadas)
+        print("beacons")
+        print(self.beacons)
+        print("paredes")
+        print(self.paredes)
         for i in self.livres:
             self.mapArray[13 - i[1]][27 + i[0]] = 'O'
 

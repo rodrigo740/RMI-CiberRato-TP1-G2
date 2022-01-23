@@ -8,18 +8,18 @@
                                                        
                                                        
                                                        
-                                 - - - - - - - - - -   
-                                |XXXXXXXXX|XXXXXXXXX|  
-                         - - O - X - - - X X - - - X   
-                        |XX0XXXXXX|XXXXX|X|XXXXXXXXX|  
-                         X - - - X X - - X - X - - X   
-                        |XXX|XXX|XXX|   |XXX|XXX|3XX|  
-                         - X X - X -     - X - X - X   
-                          |X|XXXXX|       |XXXXX|XXX|  
-                         - X - - -   -     - O O - X   
-                        |XXX|       |X|           OX|  
-                         X -   - - - X             X   
-                        |X|   |XXXXXXX|           OX|  
+                                 - - - - -             
+                                |XXXXXXXXX|            
+                         - - O - X - - - X             
+                        |XX0XXXXXX|     |X|            
+                         X - - - X       X -           
+                        |XXX|XO |XO     |XXX|          
+                         - X X - X       - X - O       
+                          |X|XXXXX|       |XXXXX|      
+                         - X - - -   -     - O X       
+                        |XXX|       |X|       |XO      
+                         X -   - - - X         X - O   
+                        |X|   |XXXXXXX|       OXXXXX|  
                          X O O X - - X - - O - - - X   
                         |XXXXXXXO   |XXXXXXXXXXXXXXX|  
                          - - - -     - - - - - - - -   
