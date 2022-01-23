@@ -386,7 +386,9 @@ class MyRob(CRobLinkAngs):
                         beac.append(i)
 
                     start = pos
-                    beac.remove(pos)
+
+                    if pos in beac:
+                        beac.remove(pos)
 
                     ##print(beac)
 
@@ -1220,7 +1222,8 @@ class MyRob(CRobLinkAngs):
             beac.append(i)
 
         start = pos
-        beac.remove(pos)
+        if pos in beac:
+            beac.remove(pos)
 
         ##print(beac)
 
